@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scoreboard Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f2f2f2;
+        }
+        .scoreboard {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 350px;
+        }
+        h2 {
+            margin-bottom: 20px;
+        }
+        .player {
+            margin: 20px 0;
+        }
+        .score {
+            font-size: 24px;
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="scoreboard">
+        <h2>Badminton Player Scores</h2>
+        <div class="player" id="player1">
+            <span class="name" id="player1-name">Player 1</span>
+            <span class="score" id="player1-score">0</span>
+        </div>
+        <div class="player" id="player2">
+            <span class="name" id="player2-name">Player 2</span>
+            <span class="score" id="player2-score">0</span>
+        </div>
+    </div>
+
+    <script>
+        var courtName = "court_one";
+        var ws = new WebSocket('ws://' + window.location.host + '/ws/scoreboard/' + courtName + '/');
+
+        ws.onopen = function() {
+            console.log('WebSocket connected to scoreboard');
+        };
+
+        ws.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            document.getElementById('player1-name').textContent = data['player1_name'];
+            document.getElementById('player2-name').textContent = data['player2_name'];
+            document.getElementById('player1-score').textContent = data['player1_score'];
+            document.getElementById('player2-score').textContent = data['player2_score'];
+        };
+
+        ws.onerror = function(e) {
+            console.error('WebSocket error:', e);
+        };
+    </script>
+</body>
+</html>

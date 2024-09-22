@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scoreboard Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f2f2f2;
+        }
+        .scoreboard {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 350px;
+        }
+        h2 {
+            margin-bottom: 20px;
+        }
+        .player {
+            margin: 20px 0;
+        }
+        .score {
+            font-size: 24px;
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="scoreboard">
+        <h2>Badminton Player Scores</h2>
+        <div class="player" id="player1">
+            <span class="name" id="player1-name">Player 1</span>
+            <span class="score" id="player1-score">0</span>
+        </div>
+        <div class="player" id="player2">
+            <span class="name" id="player2-name">Player 2</span>
+            <span class="score" id="player2-score">0</span>
+        </div>
+    </div>
+
+    <script>
+        // Establish WebSocket connection
+        var courtName = "court_two";
+        var ws = new WebSocket('ws://' + window.location.host + '/ws/court/' + courtName + '/');
+
+        // When the WebSocket connection is opened
+        ws.onopen = function(e) {
+            console.log('WebSocket is connected to court1');
+        };
+
+        // When a message is received from the server
+        ws.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            document.getElementById('player1-name').value = data['player1_name'];
+            document.getElementById('player2-name').value = data['player2_name'];
+            document.getElementById('player1-score').textContent = data['player1_score'];
+            document.getElementById('player2-score').textContent = data['player2_score'];
+        };
+
+        // Function to switch players
+        function switchPlayers() {
+            const player1_name = document.getElementById('player1-name').value;
+            const player2_name = document.getElementById('player2-name').value;
+            const player1_score = document.getElementById('player1-score').textContent;
+            const player2_score = document.getElementById('player2-score').textContent;
+
+            ws.send(JSON.stringify({
+                'player1_name': player2_name,
+                'player2_name': player1_name,
+                'player1_score': player2_score,
+                'player2_score': player1_score,
+            }));
+        };
+
+        // Function to change the score
+        function changeScore(action) {
+            const player1_name = document.getElementById('player1-name').value;
+            const player2_name = document.getElementById('player2-name').value;
+            let player1_score = parseInt(document.getElementById('player1-score').textContent);
+            let player2_score = parseInt(document.getElementById('player2-score').textContent);
+
+            // Adjust score based on action
+            if (action === 'increase1') player1_score++;
+            else if (action === 'decrease1') player1_score--;
+            else if (action === 'increase2') player2_score++;
+            else if (action === 'decrease2') player2_score--;
+
+            // Ensure the WebSocket is open before sending
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    'player1_name': player1_name,
+                    'player2_name': player2_name,
+                    'player1_score': player1_score,
+                    'player2_score': player2_score,
+                }));
+            } else {
+                console.log('WebSocket is not open');
+            }
+        }
+    </script>
+</body>
+</html>

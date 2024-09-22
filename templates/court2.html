@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Badminton Player Scores</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f2f2f2;
+        }
+        .scoreboard {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 350px;
+        }
+        h2 {
+            margin-bottom: 20px;
+        }
+        .player {
+            margin: 20px 0;
+        }
+        input[type="text"] {
+            width: 150px;
+            padding: 5px;
+            margin: 0 10px;
+            font-size: 16px;
+            text-align: center;
+        }
+        button {
+            padding: 10px 15px;
+            margin: 0 5px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .score {
+            font-size: 24px;
+            margin: 0 10px;
+        }
+        .logout-button {
+            background-color: #f44336;
+            margin-top: 20px;
+            padding: 10px 20px;
+            width: 100%;
+        }
+        .logout-button:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <div class="scoreboard">
+        <h2>Badminton Player Scores</h2>
+        <form method="POST">
+            {% csrf_token %}
+            <div class="player" id="player1">
+                <input type="text" name="name1" id="player1-name" value="{{ player1_name }}">
+                <button type="button" onclick="changeScore('decrease1')">-</button>
+                <span class="score" id="player1-score">{{ player1_score }}</span>
+                <button type="button" onclick="changeScore('increase1')">+</button>
+            </div>
+            <div class="player" id="player2">
+                <input type="text" name="name2" id="player2-name" value="{{ player2_name }}">
+                <button type="button" onclick="changeScore('decrease2')">-</button>
+                <span class="score" id="player2-score">{{ player2_score }}</span>
+                <button type="button" onclick="changeScore('increase2')">+</button>
+            </div>
+            <button type="button" onclick="switchPlayers()">Switch Players</button>
+        </form>
+    </div>
+    
+    <script>
+        // Establish WebSocket connection
+        var courtName = "court2";
+        var ws = new WebSocket('ws://' + window.location.host + '/ws/court/' + courtName + '/');
+
+        // When the WebSocket connection is opened
+        ws.onopen = function(e) {
+            console.log('WebSocket is connected to court1');
+        };
+
+        // When a message is received from the server
+        ws.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            document.getElementById('player1-name').value = data['player1_name'];
+            document.getElementById('player2-name').value = data['player2_name'];
+            document.getElementById('player1-score').textContent = data['player1_score'];
+            document.getElementById('player2-score').textContent = data['player2_score'];
+        };
+
+        // Function to switch players
+        function switchPlayers() {
+            const player1_name = document.getElementById('player1-name').value;
+            const player2_name = document.getElementById('player2-name').value;
+            const player1_score = document.getElementById('player1-score').textContent;
+            const player2_score = document.getElementById('player2-score').textContent;
+
+            ws.send(JSON.stringify({
+                'player1_name': player2_name,
+                'player2_name': player1_name,
+                'player1_score': player2_score,
+                'player2_score': player1_score,
+            }));
+        };
+
+        // Function to change the score
+        function changeScore(action) {
+            const player1_name = document.getElementById('player1-name').value;
+            const player2_name = document.getElementById('player2-name').value;
+            let player1_score = parseInt(document.getElementById('player1-score').textContent);
+            let player2_score = parseInt(document.getElementById('player2-score').textContent);
+
+            // Adjust score based on action
+            if (action === 'increase1') player1_score++;
+            else if (action === 'decrease1') player1_score--;
+            else if (action === 'increase2') player2_score++;
+            else if (action === 'decrease2') player2_score--;
+
+            // Ensure the WebSocket is open before sending
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    'player1_name': player1_name,
+                    'player2_name': player2_name,
+                    'player1_score': player1_score,
+                    'player2_score': player2_score,
+                }));
+            } else {
+                console.log('WebSocket is not open');
+            }
+        }
+    </script>
+</body>
+</html>
