@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scoreboard Viewer</title>
+    <title>Badminton Player Scores</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -19,39 +19,81 @@
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             text-align: center;
-            width: 350px;
+            width: 600px; /* Adjusted width for better spacing */
+            display: flex;
+            flex-direction: column;
         }
         h2 {
             margin-bottom: 20px;
         }
+        .score-container {
+            display: flex;
+            justify-content: space-between; /* Space between players */
+            align-items: center;
+            margin: 20px 0; /* Margin for spacing */
+        }
         .player {
-            margin: 20px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center align player elements */
         }
         .score {
             font-size: 24px;
-            margin: 0 10px;
+            margin: 0 10px; /* Margin for spacing */
+        }
+        .set-results {
+            text-align: center; /* Center the set results */
+        }
+        .set {
+            margin: 5px 0; /* Margin for spacing between sets */
+        }
+        .current-set {
+            font-size: 20px; /* Size for current set */
+            margin-top: 10px;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
     <div class="scoreboard">
         <h2>Badminton Player Scores</h2>
-        <div class="player" id="player1">
-            <span class="name" id="player1-name">Player 1</span>
-            <span class="score" id="player1-score">0</span>
+        <div class="score-container">
+            <div class="player" id="player1">
+                <span class="name" id="player1-name">Player 1</span>
+                <span class="score" id="player1-score">0</span>
+            </div>
+            <div class="player" id="player2">
+                <span class="name" id="player2-name">Player 2</span>
+                <span class="score" id="player2-score">0</span>
+            </div>
         </div>
-        <div class="player" id="player2">
-            <span class="name" id="player2-name">Player 2</span>
-            <span class="score" id="player2-score">0</span>
+
+        <div class="set-results">
+            <div class="set">
+                <strong>Set 1:</strong> 
+                <span id="player1-set1">0</span> - <span id="player2-set1">0</span>
+            </div>
+            <div class="set">
+                <strong>Set 2:</strong> 
+                <span id="player1-set2">0</span> - <span id="player2-set2">0</span>
+            </div>
+            <div class="set">
+                <strong>Set 3:</strong> 
+                <span id="player1-set3">0</span> - <span id="player2-set3">0</span>
+            </div>
+        </div>
+
+        <div class="current-set">
+            Current Set: <span id="current-set">1</span>
         </div>
     </div>
 
     <script>
-        var courtName = "court_one";
-        var ws = new WebSocket('ws://' + window.location.host + '/ws/scoreboard/' + courtName + '/');
+        var courtName = "court1";
+        var ws = new WebSocket('ws://' + window.location.host + '/ws/court/' + courtName + '/');
 
         ws.onopen = function() {
-            console.log('WebSocket connected to scoreboard');
+            console.log('WebSocket connected to court1');
         };
 
         ws.onmessage = function(e) {
@@ -60,6 +102,17 @@
             document.getElementById('player2-name').textContent = data['player2_name'];
             document.getElementById('player1-score').textContent = data['player1_score'];
             document.getElementById('player2-score').textContent = data['player2_score'];
+
+            // Update set results
+            document.getElementById('player1-set1').textContent = data['player1_set1'];
+            document.getElementById('player2-set1').textContent = data['player2_set1'];
+            document.getElementById('player1-set2').textContent = data['player1_set2'];
+            document.getElementById('player2-set2').textContent = data['player2_set2'];
+            document.getElementById('player1-set3').textContent = data['player1_set3'];
+            document.getElementById('player2-set3').textContent = data['player2_set3'];
+
+            // Update current set
+            document.getElementById('current-set').textContent = data['current_set'];
         };
 
         ws.onerror = function(e) {
