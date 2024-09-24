@@ -80,6 +80,26 @@
                 <span class="score" id="player2-score">{{ player2_score }}</span>
                 <button type="button" onclick="changeScore('increase2')">+</button>
             </div>
+            <!-- Set Results for three sets -->
+<div class="set-results">
+    <div class="set">
+        <strong>Set 1:</strong> 
+        <span id="player1-set1">{{ player1_sets.0 }}</span> - <span id="player2-set1">{{ player2_sets.0 }}</span>
+    </div>
+    <div class="set">
+        <strong>Set 2:</strong> 
+        <span id="player1-set2">{{ player1_sets.1 }}</span> - <span id="player2-set2">{{ player2_sets.1 }}</span>
+    </div>
+    <div class="set">
+        <strong>Set 3:</strong> 
+        <span id="player1-set3">{{ player1_sets.2 }}</span> - <span id="player2-set3">{{ player2_sets.2 }}</span>
+    </div>
+</div>
+
+<div>
+    <h2>Current Set: <span id="current-set">{{ current_set }}</span></h2>
+</div>
+
             <button type="button" onclick="switchPlayers()">Switch Players</button>
         </form>
     </div>
@@ -101,48 +121,154 @@
             document.getElementById('player2-name').value = data['player2_name'];
             document.getElementById('player1-score').textContent = data['player1_score'];
             document.getElementById('player2-score').textContent = data['player2_score'];
+           
+
         };
 
-        // Function to switch players
         function switchPlayers() {
-            const player1_name = document.getElementById('player1-name').value;
-            const player2_name = document.getElementById('player2-name').value;
-            const player1_score = document.getElementById('player1-score').textContent;
-            const player2_score = document.getElementById('player2-score').textContent;
+    const player1_name = document.getElementById('player1-name').value;
+    const player2_name = document.getElementById('player2-name').value;
+    const player1_score = document.getElementById('player1-score').textContent;
+    const player2_score = document.getElementById('player2-score').textContent;
 
-            ws.send(JSON.stringify({
-                'player1_name': player2_name,
-                'player2_name': player1_name,
-                'player1_score': player2_score,
-                'player2_score': player1_score,
-            }));
-        };
+    // Get the current set
+    const current_set = document.getElementById('current-set').textContent;
+
+    // Assuming you have elements for player1_set1, player1_set2, player2_set1, player2_set2 in your HTML
+    const player1_set1 = document.getElementById('player1-set1').textContent || 0;
+    const player1_set2 = document.getElementById('player1-set2').textContent || 0;
+    const player1_set3 = document.getElementById('player1-set3').textContent || 0;
+    
+    
+    
+    
+    
+    
+    const player2_set1 = document.getElementById('player2-set1').textContent || 0;
+    const player2_set2 = document.getElementById('player2-set2').textContent || 0;
+    const player2_set3 = document.getElementById('player2-set3').textContent || 0;
+
+    ws.send(JSON.stringify({
+        'player1_name': player1_name,
+        'player2_name': player2_name,
+        'player1_score': player1_score,
+        'player2_score': player2_score,
+        'current_set': current_set, // Add current_set to the data being sent
+        'player1_set1': player1_set1, // Add player1's sets
+        'player1_set2': player1_set2,
+        'player1_set3': player1_set3,
+        'player2_set1': player2_set1, // Add player2's sets
+        'player2_set2': player2_set2,
+        'player2_set3': player2_set3
+    }));
+};
+
+
 
         // Function to change the score
         function changeScore(action) {
-            const player1_name = document.getElementById('player1-name').value;
-            const player2_name = document.getElementById('player2-name').value;
-            let player1_score = parseInt(document.getElementById('player1-score').textContent);
-            let player2_score = parseInt(document.getElementById('player2-score').textContent);
+    // Get player names
+    const player1_name = document.getElementById('player1-name').value;
+    const player2_name = document.getElementById('player2-name').value;
 
-            // Adjust score based on action
-            if (action === 'increase1') player1_score++;
-            else if (action === 'decrease1') player1_score--;
-            else if (action === 'increase2') player2_score++;
-            else if (action === 'decrease2') player2_score--;
+    // Get current player scores
+    let player1_score = parseInt(document.getElementById('player1-score').textContent);
+    let player2_score = parseInt(document.getElementById('player2-score').textContent);
 
-            // Ensure the WebSocket is open before sending
-            if (ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({
-                    'player1_name': player1_name,
-                    'player2_name': player2_name,
-                    'player1_score': player1_score,
-                    'player2_score': player2_score,
-                }));
-            } else {
-                console.log('WebSocket is not open');
-            }
+    // Get current set
+    let current_set = parseInt(document.getElementById('current-set').textContent);
+
+    // Get all set scores for both players
+    let player1_set1 = parseInt(document.getElementById('player1-set1').textContent);
+    let player1_set2 = parseInt(document.getElementById('player1-set2').textContent);
+    let player1_set3 = parseInt(document.getElementById('player1-set3').textContent);
+    
+    let player2_set1 = parseInt(document.getElementById('player2-set1').textContent);
+    let player2_set2 = parseInt(document.getElementById('player2-set2').textContent);
+    let player2_set3 = parseInt(document.getElementById('player2-set3').textContent);
+
+    // Adjust score based on action
+    if (action === 'increase1') {
+        player1_score++;
+    } else if (action === 'decrease1' && player1_score > 0) {
+        player1_score--;
+    } else if (action === 'increase2') {
+        player2_score++;
+    } else if (action === 'decrease2' && player2_score > 0) {
+        player2_score--;
+    }
+
+    // Update the score in the DOM after the button is clicked
+    document.getElementById('player1-score').textContent = player1_score;
+    document.getElementById('player2-score').textContent = player2_score;
+
+    // Check if current set is complete and move to the next set
+    if (current_set === 1) {
+        if ((player1_score >= 21 && player1_score - player2_score >= 2) || (player2_score >= 21 && player2_score - player1_score >= 2)) {
+            // Update set 1 scores
+            document.getElementById('player1-set1').textContent = player1_score;
+            document.getElementById('player2-set1').textContent = player2_score;
+            
+            // Move to next set and reset scores
+            current_set++;
+            player1_score = 0;
+            player2_score = 0;
+            document.getElementById('current-set').textContent = current_set;
+            document.getElementById('player1-score').textContent = player1_score;
+            document.getElementById('player2-score').textContent = player2_score;
         }
+    } else if (current_set === 2) {
+        if ((player1_score >= 21 && player1_score - player2_score >= 2) || (player2_score >= 21 && player2_score - player1_score >= 2)) {
+            // Update set 2 scores
+            document.getElementById('player1-set2').textContent = player1_score;
+            document.getElementById('player2-set2').textContent = player2_score;
+
+            // Move to next set and reset scores
+            current_set++;
+            player1_score = 0;
+            player2_score = 0;
+            document.getElementById('current-set').textContent = current_set;
+            document.getElementById('player1-score').textContent = player1_score;
+            document.getElementById('player2-score').textContent = player2_score;
+        }
+    } else if (current_set === 3) {
+        if ((player1_score >= 21 && player1_score - player2_score >= 2) || (player2_score >= 21 && player2_score - player1_score >= 2)) {
+            // Update set 3 scores
+            document.getElementById('player1-set3').textContent = player1_score;
+            document.getElementById('player2-set3').textContent = player2_score;
+
+            // End the match after the final set
+            current_set++;
+            document.getElementById('current-set').textContent = current_set;
+
+            // Reset scores (optional after the game is over)
+            player1_score = 0;
+            player2_score = 0;
+            document.getElementById('player1-score').textContent = player1_score;
+            document.getElementById('player2-score').textContent = player2_score;
+        }
+    }
+
+    // Ensure the WebSocket is open before sending the updated scores
+    if (ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+            'player1_name': player1_name,
+            'player2_name': player2_name,
+            'player1_score': player1_score,
+            'player2_score': player2_score,
+            'current_set': current_set,
+            'player1_set1': player1_set1,
+            'player1_set2': player1_set2,
+            'player1_set3': player1_set3,
+            'player2_set1': player2_set1,
+            'player2_set2': player2_set2,
+            'player2_set3': player2_set3
+        }));
+    } else {
+        console.log('WebSocket is not open');
+    }
+}
+
     </script>
 </body>
 </html>

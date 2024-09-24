@@ -30,7 +30,6 @@ def login_view(request):
             return render(request, 'login.html', {'error': 'Invalid username or password'})
     return render(request, 'login.html')
 
-from django.shortcuts import render
 
 def scoreboard_view(request):
     # Retrieve scores from session, or initialize if not set
@@ -38,6 +37,13 @@ def scoreboard_view(request):
     player2_name = request.POST.get('name2', request.session.get('player2_name', 'Player 2'))
     player1_score = int(request.session.get('player1_score', 0))
     player2_score = int(request.session.get('player2_score', 0))
+    current_set = int(request.session.get('current_set', 1))
+    player1_sets_0 = int(request.session.get('player1_sets.0', 0))
+    player1_sets_1 = int(request.session.get('player1_sets.1', 0))
+    player1_sets_2 = int(request.session.get('player1_sets.2', 0))
+    player2_sets_0 = int(request.session.get('player2_sets.0', 0))
+    player2_sets_1 = int(request.session.get('player2_sets.1', 0))
+    player2_sets_2 = int(request.session.get('player2_sets.2', 0))
 
     if request.method == 'POST':
         action = request.POST.get('action')
@@ -54,20 +60,62 @@ def scoreboard_view(request):
             player1_name, player2_name = player2_name, player1_name
             player1_score, player2_score = player2_score, player1_score
 
+        while(current_set<=3):
+            if (current_set == 1):
+                if (player1_score == 19 and player2_score == 21 ) or (player1_score == 21 and player2_score == 19):
+                    player1_sets_0 == player1_score
+                    player2_sets_0 == player2_score
+                    current_set+=1
+                    player1_score = 0
+                    player2_score = 0
+            if (current_set == 2):
+                if (player1_score == 19 and player2_score == 21 ) or (player1_score == 21 and player2_score == 19):
+                    player1_sets_1 == player1_score
+                    player2_sets_1 == player2_score
+                    current_set+=1
+                    player1_score = 0
+                    player2_score = 0
+            if (current_set == 3):        
+                if (player1_score == 19 and player2_score == 21 ) or (player1_score == 21 and player2_score == 19):
+                    player1_sets_2 == player1_score
+                    player2_sets_2 == player2_score
+                    current_set+=1
+                    player1_score = 0
+                    player2_score = 0
+
+
+            
+
         # Store updated values in session
         request.session['player1_name'] = player1_name
         request.session['player2_name'] = player2_name
         request.session['player1_score'] = player1_score
         request.session['player2_score'] = player2_score
+        request.session['current_set'] = current_set
+        request.session['player1_sets.0'] = player1_sets_0
+        request.session['player1_sets.1'] = player1_sets_1
+        request.session['player1_sets.2'] = player1_sets_2
+        request.session['player2_sets.0'] = player1_sets_0
+        request.session['player2_sets.1'] = player1_sets_1
+        request.session['player2_sets.2'] = player1_sets_2
+
 
     context = {
         'player1_name': player1_name,
         'player2_name': player2_name,
         'player1_score': player1_score,
         'player2_score': player2_score,
+        'current_set':current_set,
+        'player1_sets.0':player1_sets_0,
+        'player1_sets.1':player1_sets_1,
+        'player1_sets.2':player1_sets_2,
+        'player2_sets.0':player1_sets_0,
+        'player2_sets.1':player1_sets_1,
+        'player2_sets.2':player1_sets_2,
     }
 
     return render(request, 'court1.html', context)
+
 
 def logout_view(request):
     logout(request)
@@ -100,7 +148,7 @@ def court2_view(request):
         elif action == 'switch':
             player1_name, player2_name = player2_name, player1_name
             player1_score, player2_score = player2_score, player1_score
-
+        
         # Store updated values in session
         request.session['player1_name'] = player1_name
         request.session['player2_name'] = player2_name

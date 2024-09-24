@@ -18,220 +18,66 @@ class CourtConsumer(AsyncWebsocketConsumer):
         print(f"WebSocket connection closed for court: {self.court_name}, code: {close_code}")
 
     async def receive(self, text_data):
-        # Parse the incoming data
+    # Parse the incoming data
         data = json.loads(text_data)
 
-        # Broadcast to the current court group
-        await self.channel_layer.group_send(
-            self.group_name,
-            {
-                'type': 'score_update',
-                'player1_name': data['player1_name'],
-                'player2_name': data['player2_name'],
-                'player1_score': data['player1_score'],
-                'player2_score': data['player2_score'],
-            }
-        )
+    # Prepare the payload with the current set and all sets for both players
+        message = {
+        'type': 'score_update',
+        'player1_name': data['player1_name'],
+        'player2_name': data['player2_name'],
+        'player1_score': data['player1_score'],
+        'player2_score': data['player2_score'],
+        'current_set': data['current_set'],
+        'player1_set1': data['player1_set1'],
+        'player1_set2': data['player1_set2'],
+        'player1_set3': data['player1_set3'],
+        'player2_set1': data['player2_set1'],
+        'player2_set2': data['player2_set2'],
+        'player2_set3': data['player2_set3'],
+    }
 
-        # Broadcast the same data to the corresponding court (court1 <-> court_one)
+    # Broadcast to the current court group
+        await self.channel_layer.group_send(self.group_name, message)
+
+    # Broadcast the same data to the corresponding court (court1 <-> court_one)
         if self.court_name == 'court1':
-            await self.channel_layer.group_send(
-                'court_court_one',
-                {
-                    'type': 'score_update',
-                    'player1_name': data['player1_name'],
-                    'player2_name': data['player2_name'],
-                    'player1_score': data['player1_score'],
-                    'player2_score': data['player2_score'],
-                }
-            )
+            await self.channel_layer.group_send('court_court_one', message)
         elif self.court_name == 'court_one':
-            await self.channel_layer.group_send(
-                'court_court1',
-                {
-                    'type': 'score_update',
-                    'player1_name': data['player1_name'],
-                    'player2_name': data['player2_name'],
-                    'player1_score': data['player1_score'],
-                    'player2_score': data['player2_score'],
-                }
-            )
+            await self.channel_layer.group_send('court_court1', message)
         elif self.court_name == 'court2':
-            await self.channel_layer.group_send(
-                'court_court_two',
-                {
-                    'type': 'score_update',
-                    'player1_name': data['player1_name'],
-                    'player2_name': data['player2_name'],
-                    'player1_score': data['player1_score'],
-                    'player2_score': data['player2_score'],
-                }
-            )
+            await self.channel_layer.group_send('court_court_two', message)
         elif self.court_name == 'court_two':
-            await self.channel_layer.group_send(
-                'court_court2',
-                {
-                    'type': 'score_update',
-                    'player1_name': data['player1_name'],
-                    'player2_name': data['player2_name'],
-                    'player1_score': data['player1_score'],
-                    'player2_score': data['player2_score'],
-                }
-            )
+            await self.channel_layer.group_send('court_court2', message)
         elif self.court_name == 'court3':
-            await self.channel_layer.group_send(
-                'court_court_three',
-                {
-                    'type': 'score_update',
-                    'player1_name': data['player1_name'],
-                    'player2_name': data['player2_name'],
-                    'player1_score': data['player1_score'],
-                    'player2_score': data['player2_score'],
-                }
-            )
+            await self.channel_layer.group_send('court_court_three', message)
         elif self.court_name == 'court_three':
-            await self.channel_layer.group_send(
-                'court_court3',
-                {
-                    'type': 'score_update',
-                    'player1_name': data['player1_name'],
-                    'player2_name': data['player2_name'],
-                    'player1_score': data['player1_score'],
-                    'player2_score': data['player2_score'],
-                }
-            )
+            await self.channel_layer.group_send('court_court3', message)
         elif self.court_name == 'court4':
-            await self.channel_layer.group_send(
-                'court_court_four',
-                {
-                    'type': 'score_update',
-                    'player1_name': data['player1_name'],
-                    'player2_name': data['player2_name'],
-                    'player1_score': data['player1_score'],
-                    'player2_score': data['player2_score'],
-                }
-            )
+            await self.channel_layer.group_send('court_court_four', message)
         elif self.court_name == 'court_four':
-            await self.channel_layer.group_send(
-                'court_court4',
-                {
-                    'type': 'score_update',
-                    'player1_name': data['player1_name'],
-                    'player2_name': data['player2_name'],
-                    'player1_score': data['player1_score'],
-                    'player2_score': data['player2_score'],
-                }
-            )
+            await self.channel_layer.group_send('court_court4', message)
         elif self.court_name == 'court5':
-            await self.channel_layer.group_send(
-                'court_court_five',
-                {
-                    'type': 'score_update',
-                    'player1_name': data['player1_name'],
-                    'player2_name': data['player2_name'],
-                    'player1_score': data['player1_score'],
-                    'player2_score': data['player2_score'],
-                }
-            )
+            await self.channel_layer.group_send('court_court_five', message)
         elif self.court_name == 'court_five':
-            await self.channel_layer.group_send(
-                'court_court5',
-                {
-                    'type': 'score_update',
-                    'player1_name': data['player1_name'],
-                    'player2_name': data['player2_name'],
-                    'player1_score': data['player1_score'],
-                    'player2_score': data['player2_score'],
-                }
-            )
+            await self.channel_layer.group_send('court_court5', message)
         elif self.court_name == 'court6':
-            await self.channel_layer.group_send(
-                'court_court_six',
-                {
-                    'type': 'score_update',
-                    'player1_name': data['player1_name'],
-                    'player2_name': data['player2_name'],
-                    'player1_score': data['player1_score'],
-                    'player2_score': data['player2_score'],
-                }
-            )
+            await self.channel_layer.group_send('court_court_six', message)
         elif self.court_name == 'court_six':
-            await self.channel_layer.group_send(
-                'court_court6',
-                {
-                    'type': 'score_update',
-                    'player1_name': data['player1_name'],
-                    'player2_name': data['player2_name'],
-                    'player1_score': data['player1_score'],
-                    'player2_score': data['player2_score'],
-                }
-            )
+            await self.channel_layer.group_send('court_court6', message)
         elif self.court_name == 'court7':
-            await self.channel_layer.group_send(
-                'court_court_seven',
-                {
-                    'type': 'score_update',
-                    'player1_name': data['player1_name'],
-                    'player2_name': data['player2_name'],
-                    'player1_score': data['player1_score'],
-                    'player2_score': data['player2_score'],
-                }
-            )
+            await self.channel_layer.group_send('court_court_seven', message)
         elif self.court_name == 'court_seven':
-            await self.channel_layer.group_send(
-                'court_court7',
-                {
-                    'type': 'score_update',
-                    'player1_name': data['player1_name'],
-                    'player2_name': data['player2_name'],
-                    'player1_score': data['player1_score'],
-                    'player2_score': data['player2_score'],
-                }
-            )
+            await self.channel_layer.group_send('court_court7', message)
         elif self.court_name == 'court8':
-            await self.channel_layer.group_send(
-                'court_court_eight',
-                {
-                    'type': 'score_update',
-                    'player1_name': data['player1_name'],
-                    'player2_name': data['player2_name'],
-                    'player1_score': data['player1_score'],
-                    'player2_score': data['player2_score'],
-                }
-            )
+            await self.channel_layer.group_send('court_court_eight', message)
         elif self.court_name == 'court_eight':
-            await self.channel_layer.group_send(
-                'court_court8',
-                {
-                    'type': 'score_update',
-                    'player1_name': data['player1_name'],
-                    'player2_name': data['player2_name'],
-                    'player1_score': data['player1_score'],
-                    'player2_score': data['player2_score'],
-                }
-            )
+            await self.channel_layer.group_send('court_court8', message)
         elif self.court_name == 'court9':
-            await self.channel_layer.group_send(
-                'court_court_nine',
-                {
-                    'type': 'score_update',
-                    'player1_name': data['player1_name'],
-                    'player2_name': data['player2_name'],
-                    'player1_score': data['player1_score'],
-                    'player2_score': data['player2_score'],
-                }
-            )
+            await self.channel_layer.group_send('court_court_nine', message)
         elif self.court_name == 'court_nine':
-            await self.channel_layer.group_send(
-                'court_court9',
-                {
-                    'type': 'score_update',
-                    'player1_name': data['player1_name'],
-                    'player2_name': data['player2_name'],
-                    'player1_score': data['player1_score'],
-                    'player2_score': data['player2_score'],
-                }
-            )
+            await self.channel_layer.group_send('court_court9', message)
+
 
     async def score_update(self, event):
         # Send updated scores to the WebSocket client
