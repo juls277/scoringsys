@@ -11,46 +11,71 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #f2f2f2;
+            margin: 0;
+            background: linear-gradient(135deg, #6dd5ed, #2193b0); /* Background gradient for a dynamic look */
         }
         .scoreboard {
             background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); /* Enhanced shadow for depth */
             text-align: center;
-            width: 600px; /* Adjusted width for better spacing */
+            width: 700px; /* Adjusted width for better spacing */
             display: flex;
             flex-direction: column;
         }
         h2 {
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            font-size: 28px;
+            color: #333;
         }
         .score-container {
             display: flex;
             justify-content: space-between; /* Space between players */
             align-items: center;
-            margin: 20px 0; /* Margin for spacing */
+            margin: 30px 0; /* Increased margin for better spacing */
         }
         .player {
             display: flex;
             flex-direction: column;
-            align-items: center; /* Center align player elements */
+            align-items: center;
         }
         .score {
-            font-size: 24px;
-            margin: 0 10px; /* Margin for spacing */
+            font-size: 50px; /* Increased size for better visibility */
+            margin: 10px 0;
+            color: #ff5722; /* Bright color for emphasis */
+            font-weight: bold;
+        }
+        .name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #555;
         }
         .set-results {
-            text-align: center; /* Center the set results */
+            text-align: center;
+            margin-top: 30px;
         }
         .set {
-            margin: 5px 0; /* Margin for spacing between sets */
+            margin: 10px 0;
+            font-size: 22px; /* Larger font size for set results */
+        }
+        .set span {
+            padding: 8px 16px;
+            background-color: #f0f0f0;
+            border-radius: 8px;
+            margin: 0 5px;
+            font-weight: bold;
         }
         .current-set {
-            font-size: 20px; /* Size for current set */
-            margin-top: 10px;
+            font-size: 24px;
+            margin-top: 20px;
             font-weight: bold;
+            color: #333;
+        }
+        /* Hover effect for player names */
+        .player:hover .name {
+            color: #007bff;
+            transition: color 0.3s ease;
         }
     </style>
 </head>
