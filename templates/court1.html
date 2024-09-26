@@ -90,7 +90,15 @@
             {% csrf_token %}
             <div class="score-container">
                 <div class="player" id="player1">
-                    <input type="text" name="name1" id="player1-name" value="{{ player1_name }}">
+                    <label for="player1-name">Select Player 1:</label>
+    <select name="name1" id="player1-name">
+        <option value="" disabled>Select Player 1</option>
+        {% for player in players %}
+            <option value="{{ player.name }}" {% if player.name == player1_name %}selected{% endif %}>
+                {{ player.name }} ({{ player.age_category }}, {{ player.country }})
+            </option>
+        {% endfor %}
+    </select>
                     <div class="score-buttons">
                         <button type="button" onclick="changeScore('decrease1')">-</button>
                         <span class="score" id="player1-score">{{ player1_score }}</span>
@@ -100,19 +108,27 @@
                 <div class="set-results">
                     <div class="set">
                         <strong>Set 1:</strong> 
-                        <span id="player1-set1">{{ player1_sets.0 }}</span> - <span id="player2-set1">{{ player2_sets.0 }}</span>
+                        <span id="player1-set1"></span> - <span id="player2-set1"></span>
                     </div>
                     <div class="set">
                         <strong>Set 2:</strong> 
-                        <span id="player1-set2">{{ player1_sets.1 }}</span> - <span id="player2-set2">{{ player2_sets.1 }}</span>
+                        <span id="player1-set2"></span> - <span id="player2-set2"></span>
                     </div>
                     <div class="set">
                         <strong>Set 3:</strong> 
-                        <span id="player1-set3">{{ player1_sets.2 }}</span> - <span id="player2-set3">{{ player2_sets.2 }}</span>
+                        <span id="player1-set3"></span> - <span id="player2-set3"></span>
                     </div>
                 </div>
                 <div class="player" id="player2">
-                    <input type="text" name="name2" id="player2-name" value="{{ player2_name }}">
+                    <label for="player2-name">Select Player 2:</label>
+                    <select name="name2" id="player2-name">
+                        <option value="" disabled>Select Player 2</option>
+                        {% for player in players %}
+                            <option value="{{ player.name }}" {% if player.name == player2_name %}selected{% endif %}>
+                                {{ player.name }} ({{ player.age_category }}, {{ player.country }})
+                            </option>
+                        {% endfor %}
+                    </select>
                     <div class="score-buttons">
                         <button type="button" onclick="changeScore('decrease2')">-</button>
                         <span class="score" id="player2-score">{{ player2_score }}</span>
@@ -146,7 +162,17 @@
             document.getElementById('player2-name').value = data['player2_name'];
             document.getElementById('player1-score').textContent = data['player1_score'];
             document.getElementById('player2-score').textContent = data['player2_score'];
+
+           
+           
+
         };
+        // Listen for changes to Player 1's selection
+
+
+
+        
+
 
         function switchPlayers() {
             const player1_name = document.getElementById('player1-name').value;
@@ -182,99 +208,87 @@
 
         // Function to change the score
         function changeScore(action) {
-            const player1_name = document.getElementById('player1-name').value;
-            const player2_name = document.getElementById('player2-name').value;
+    const player1_name = document.getElementById('player1-name').value;
+    const player2_name = document.getElementById('player2-name').value;
 
-            let player1_score = parseInt(document.getElementById('player1-score').textContent);
-            let player2_score = parseInt(document.getElementById('player2-score').textContent);
-            let current_set = parseInt(document.getElementById('current-set').textContent);
+    let player1_score = parseInt(document.getElementById('player1-score').textContent);
+    let player2_score = parseInt(document.getElementById('player2-score').textContent);
+    let current_set = parseInt(document.getElementById('current-set').textContent);
 
-            let player1_set1 = parseInt(document.getElementById('player1-set1').textContent);
-            let player1_set2 = parseInt(document.getElementById('player1-set2').textContent);
-            let player1_set3 = parseInt(document.getElementById('player1-set3').textContent);
-            let player2_set1 = parseInt(document.getElementById('player2-set1').textContent);
-            let player2_set2 = parseInt(document.getElementById('player2-set2').textContent);
-            let player2_set3 = parseInt(document.getElementById('player2-set3').textContent);
+    // Adjust scores based on action
+    if (action === 'increase1') {
+        player1_score++;
+    } else if (action === 'decrease1' && player1_score > 0) {
+        player1_score--;
+    } else if (action === 'increase2') {
+        player2_score++;
+    } else if (action === 'decrease2' && player2_score > 0) {
+        player2_score--;
+    }
 
-            if (action === 'increase1') {
-                player1_score++;
-            } else if (action === 'decrease1' && player1_score > 0) {
-                player1_score--;
-            } else if (action === 'increase2') {
-                player2_score++;
-            } else if (action === 'decrease2' && player2_score > 0) {
-                player2_score--;
-            }
+    // Update displayed scores immediately
+    document.getElementById('player1-score').textContent = player1_score;
+    document.getElementById('player2-score').textContent = player2_score;
 
-            document.getElementById('player1-score').textContent = player1_score;
-            document.getElementById('player2-score').textContent = player2_score;
+    // Check for winning conditions and update set results
+    let setWon = false;
 
-            if (current_set === 1) {
-    if ((player1_score >= 21 && player1_score - player2_score >= 2) || 
+    if (current_set === 1 && ((player1_score >= 21 && player1_score - player2_score >= 2) || 
         (player1_score >= 30 && player1_score > player2_score) || 
         (player2_score >= 21 && player2_score - player1_score >= 2) || 
-        (player2_score >= 30 && player2_score > player1_score)) {
-        
+        (player2_score >= 30 && player2_score > player1_score))) {
         document.getElementById('player1-set1').textContent = player1_score;
         document.getElementById('player2-set1').textContent = player2_score;
-        current_set++;
-        player1_score = 0;
-        player2_score = 0;
-        document.getElementById('current-set').textContent = current_set;
-        document.getElementById('player1-score').textContent = player1_score;
-        document.getElementById('player2-score').textContent = player2_score;
-    }
-} else if (current_set === 2) {
-    if ((player1_score >= 21 && player1_score - player2_score >= 2) || 
+        setWon = true;
+    } else if (current_set === 2 && ((player1_score >= 21 && player1_score - player2_score >= 2) || 
         (player1_score >= 30 && player1_score > player2_score) || 
         (player2_score >= 21 && player2_score - player1_score >= 2) || 
-        (player2_score >= 30 && player2_score > player1_score)) {
-        
+        (player2_score >= 30 && player2_score > player1_score))) {
         document.getElementById('player1-set2').textContent = player1_score;
         document.getElementById('player2-set2').textContent = player2_score;
-        current_set++;
-        player1_score = 0;
-        player2_score = 0;
-        document.getElementById('current-set').textContent = current_set;
-        document.getElementById('player1-score').textContent = player1_score;
-        document.getElementById('player2-score').textContent = player2_score;
-    }
-} else if (current_set === 3) {
-    if ((player1_score >= 21 && player1_score - player2_score >= 2) || 
+        setWon = true;
+    } else if (current_set === 3 && ((player1_score >= 21 && player1_score - player2_score >= 2) || 
         (player1_score >= 30 && player1_score > player2_score) || 
         (player2_score >= 21 && player2_score - player1_score >= 2) || 
-        (player2_score >= 30 && player2_score > player1_score)) {
-        
+        (player2_score >= 30 && player2_score > player1_score))) {
         document.getElementById('player1-set3').textContent = player1_score;
         document.getElementById('player2-set3').textContent = player2_score;
-        //current_set++;
+        setWon = true;
+    }
+
+    // Reset scores if a set was won
+    if (setWon) {
+        current_set++;
         document.getElementById('current-set').textContent = current_set;
         player1_score = 0;
         player2_score = 0;
-        document.getElementById('player1-score').textContent = player1_score;
-        document.getElementById('player2-score').textContent = player2_score;
+    }
+
+    // Update displayed scores after winning a set
+    document.getElementById('player1-score').textContent = player1_score;
+    document.getElementById('player2-score').textContent = player2_score;
+
+    // Send updated scores to WebSocket
+    if (ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+            'player1_name': player1_name,
+            'player2_name': player2_name,
+            'player1_score': player1_score,
+            'player2_score': player2_score,
+            'current_set': current_set,
+            // Send set results
+            'player1_set1': document.getElementById('player1-set1').textContent,
+            'player2_set1': document.getElementById('player2-set1').textContent,
+            'player1_set2': document.getElementById('player1-set2').textContent,
+            'player2_set2': document.getElementById('player2-set2').textContent,
+            'player1_set3': document.getElementById('player1-set3').textContent,
+            'player2_set3': document.getElementById('player2-set3').textContent,
+        }));
+    } else {
+        console.log('WebSocket is not open');
     }
 }
 
-
-            if (ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({
-                    'player1_name': player1_name,
-                    'player2_name': player2_name,
-                    'player1_score': player1_score,
-                    'player2_score': player2_score,
-                    'current_set': current_set,
-                    'player1_set1': player1_set1,
-                    'player1_set2': player1_set2,
-                    'player1_set3': player1_set3,
-                    'player2_set1': player2_set1,
-                    'player2_set2': player2_set2,
-                    'player2_set3': player2_set3
-                }));
-            } else {
-                console.log('WebSocket is not open');
-            }
-        }
     </script>
 </body>
 </html>
