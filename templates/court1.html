@@ -168,7 +168,51 @@
 
         };
         // Listen for changes to Player 1's selection
+            // Listen for changes to Player 1's selection
+        document.getElementById('player1-name').addEventListener('change', function() {
+            const player1_name = this.value;
+            const player2_name = document.getElementById('player2-name').value;
+            const player1_score = document.getElementById('player1-score').textContent;
+            const player2_score = document.getElementById('player2-score').textContent;
+            const current_set = document.getElementById('current-set').textContent;
 
+            ws.send(JSON.stringify({
+                'player1_name': player1_name,
+                'player2_name': player2_name,
+                'player1_score': player1_score,
+                'player2_score': player2_score,
+                'current_set': current_set,
+                'player1_set1': document.getElementById('player1-set1').textContent,
+                'player1_set2': document.getElementById('player1-set2').textContent,
+                'player1_set3': document.getElementById('player1-set3').textContent,
+                'player2_set1': document.getElementById('player2-set1').textContent,
+                'player2_set2': document.getElementById('player2-set2').textContent,
+                'player2_set3': document.getElementById('player2-set3').textContent
+            }));
+        });
+
+        // Listen for changes to Player 2's selection
+        document.getElementById('player2-name').addEventListener('change', function() {
+            const player1_name = document.getElementById('player1-name').value;
+            const player2_name = this.value;
+            const player1_score = document.getElementById('player1-score').textContent;
+            const player2_score = document.getElementById('player2-score').textContent;
+            const current_set = document.getElementById('current-set').textContent;
+
+            ws.send(JSON.stringify({
+                'player1_name': player1_name,
+                'player2_name': player2_name,
+                'player1_score': player1_score,
+                'player2_score': player2_score,
+                'current_set': current_set,
+                'player1_set1': document.getElementById('player1-set1').textContent,
+                'player1_set2': document.getElementById('player1-set2').textContent,
+                'player1_set3': document.getElementById('player1-set3').textContent,
+                'player2_set1': document.getElementById('player2-set1').textContent,
+                'player2_set2': document.getElementById('player2-set2').textContent,
+                'player2_set3': document.getElementById('player2-set3').textContent
+            }));
+        });
 
 
         
