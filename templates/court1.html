@@ -219,36 +219,53 @@
 
 
         function switchPlayers() {
-            const player1_name = document.getElementById('player1-name').value;
-            const player2_name = document.getElementById('player2-name').value;
-            const player1_score = document.getElementById('player1-score').textContent;
-            const player2_score = document.getElementById('player2-score').textContent;
+    // Get current player names and scores
+    let player1_name = document.getElementById('player1-name').value;
+    let player2_name = document.getElementById('player2-name').value;
+    let player1_score = document.getElementById('player1-score').textContent;
+    let player2_score = document.getElementById('player2-score').textContent;
 
-            // Get the current set
-            const current_set = document.getElementById('current-set').textContent;
+    // Get current set scores
+    let player1_set1 = document.getElementById('player1-set1').textContent;
+    let player1_set2 = document.getElementById('player1-set2').textContent;
+    let player1_set3 = document.getElementById('player1-set3').textContent;
+    let player2_set1 = document.getElementById('player2-set1').textContent;
+    let player2_set2 = document.getElementById('player2-set2').textContent;
+    let player2_set3 = document.getElementById('player2-set3').textContent;
 
-            // Get set scores
-            const player1_set1 = document.getElementById('player1-set1').textContent || 0;
-            const player1_set2 = document.getElementById('player1-set2').textContent || 0;
-            const player1_set3 = document.getElementById('player1-set3').textContent || 0;
-            const player2_set1 = document.getElementById('player2-set1').textContent || 0;
-            const player2_set2 = document.getElementById('player2-set2').textContent || 0;
-            const player2_set3 = document.getElementById('player2-set3').textContent || 0;
+    // Swap player names
+    document.getElementById('player1-name').value = player2_name;
+    document.getElementById('player2-name').value = player1_name;
 
-            ws.send(JSON.stringify({
-                'player1_name': player1_name,
-                'player2_name': player2_name,
-                'player1_score': player1_score,
-                'player2_score': player2_score,
-                'current_set': current_set,
-                'player1_set1': player1_set1,
-                'player1_set2': player1_set2,
-                'player1_set3': player1_set3,
-                'player2_set1': player2_set1,
-                'player2_set2': player2_set2,
-                'player2_set3': player2_set3
-            }));
-        };
+    // Swap player scores
+    document.getElementById('player1-score').textContent = player2_score;
+    document.getElementById('player2-score').textContent = player1_score;
+
+    // Swap set results
+    document.getElementById('player1-set1').textContent = player2_set1;
+    document.getElementById('player1-set2').textContent = player2_set2;
+    document.getElementById('player1-set3').textContent = player2_set3;
+    document.getElementById('player2-set1').textContent = player1_set1;
+    document.getElementById('player2-set2').textContent = player1_set2;
+    document.getElementById('player2-set3').textContent = player1_set3;
+
+    // Send updated player information via WebSocket
+    const current_set = document.getElementById('current-set').textContent;
+
+    ws.send(JSON.stringify({
+        'player1_name': player2_name, // Player 1 is now Player 2
+        'player2_name': player1_name, // Player 2 is now Player 1
+        'player1_score': player2_score,
+        'player2_score': player1_score,
+        'current_set': current_set,
+        'player1_set1': player2_set1,
+        'player1_set2': player2_set2,
+        'player1_set3': player2_set3,
+        'player2_set1': player1_set1,
+        'player2_set2': player1_set2,
+        'player2_set3': player1_set3
+    }));
+}
 
         // Function to change the score
         function changeScore(action) {
