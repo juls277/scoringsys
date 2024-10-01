@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login as auth_login, logout
 from django.contrib.auth.models import User
@@ -37,6 +38,9 @@ def login_view(request):
         elif username == 'court2':
             auth_login(request, user)
             return redirect('court2')
+        elif user.is_superuser:  # Check if the user is an admin (superuser)
+                auth_login(request, user)
+                return redirect(reverse('admin:index')) 
         else:
             return render(request, 'login.html', {'error': 'Invalid username or password'})
     return render(request, 'login.html')
