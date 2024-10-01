@@ -1,5 +1,8 @@
 from django.urls import path, include
 from . import views 
+from django.conf import settings
+from django.conf.urls.static import static
+
 
 urlpatterns = [
     path('', views.home, name = "home"),
@@ -9,6 +12,7 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('court_one/', views.court_one_view, name='court_one' ),
     path('court_two/', views.court_two_view, name='court_two' ),
+    
     
     
 

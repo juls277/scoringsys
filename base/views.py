@@ -2,8 +2,19 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login as auth_login, logout
 from django.contrib.auth.models import User
+from django.http import JsonResponse
+from django.db import models
+from .models import Player
 
 # Create your views here.
+# views.py
+
+from .forms import PlayerSelectionForm
+
+def get_players(request):
+    players = Player.objects.all().values('name', 'age_category', 'country')
+    return JsonResponse(list(players), safe=False)
+
 def home(request):
     return render(request, 'menue.html')
 
@@ -33,8 +44,14 @@ def login_view(request):
 
 def scoreboard_view(request):
     # Retrieve scores from session, or initialize if not set
-    player1_name = request.POST.get('name1', request.session.get('player1_name', 'Player 1'))
-    player2_name = request.POST.get('name2', request.session.get('player2_name', 'Player 2'))
+    #player1_name = request.POST.get('name1', request.session.get('player1_name', 'Player 1'))
+    #player2_name = request.POST.get('name2', request.session.get('player2_name', 'Player 2'))
+    players = Player.objects.all().values('name', 'age_category', 'country')
+    
+    # Convert QuerySet to a list of dictionaries
+    players_list = list(players)
+    player1_name =  players_list
+    player2_name = players_list
     player1_score = int(request.session.get('player1_score', 0))
     player2_score = int(request.session.get('player2_score', 0))
     current_set = int(request.session.get('current_set', 1))
@@ -101,6 +118,7 @@ def scoreboard_view(request):
 
 
     context = {
+        'players': players_list, 
         'player1_name': player1_name,
         'player2_name': player2_name,
         'player1_score': player1_score,
