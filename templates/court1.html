@@ -94,7 +94,7 @@
     <select name="name1" id="player1-name">
         <option value="" disabled>Select Player 1</option>
         {% for player in players %}
-            <option value="{{ player.name }}" {% if player.name == player1_name %}selected{% endif %}>
+            <option value="{{ player.name }} {{ player.age_category }} {{ player.country }}" {% if player.name == player1_name %}selected{% endif %}>
                 {{ player.name }} ({{ player.age_category }}, {{ player.country }})
             </option>
         {% endfor %}
@@ -124,7 +124,7 @@
                     <select name="name2" id="player2-name">
                         <option value="" disabled>Select Player 2</option>
                         {% for player in players %}
-                            <option value="{{ player.name }}" {% if player.name == player2_name %}selected{% endif %}>
+                            <option value="{{ player.name }} {{ player.age_category }} {{ player.country }}" {% if player.name == player2_name  %}selected{% endif %}>
                                 {{ player.name }} ({{ player.age_category }}, {{ player.country }})
                             </option>
                         {% endfor %}
