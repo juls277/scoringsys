@@ -23,19 +23,21 @@ class CourtConsumer(AsyncWebsocketConsumer):
 
     # Prepare the payload with the current set and all sets for both players
         message = {
-        'type': 'score_update',
-        'player1_name': data['player1_name'],
-        'player2_name': data['player2_name'],
-        'player1_score': data['player1_score'],
-        'player2_score': data['player2_score'],
-        'current_set': data['current_set'],
-        'player1_set1': data['player1_set1'],
-        'player1_set2': data['player1_set2'],
-        'player1_set3': data['player1_set3'],
-        'player2_set1': data['player2_set1'],
-        'player2_set2': data['player2_set2'],
-        'player2_set3': data['player2_set3'],
-    }
+            'type': 'score_update',
+            'player1_name': data['player1_name'],
+            'player1b_name': data.get('player1b_name', ''),  # Add second player for Team 1
+            'player2_name': data['player2_name'],
+            'player2b_name': data.get('player2b_name', ''),  # Add second player for Team 2
+            'player1_score': data['player1_score'],
+            'player2_score': data['player2_score'],
+            'current_set': data['current_set'],
+            'player1_set1': data['player1_set1'],
+            'player1_set2': data['player1_set2'],
+            'player1_set3': data['player1_set3'],
+            'player2_set1': data['player2_set1'],
+            'player2_set2': data['player2_set2'],
+            'player2_set3': data['player2_set3'],
+        }
 
     # Broadcast to the current court group
         await self.channel_layer.group_send(self.group_name, message)
