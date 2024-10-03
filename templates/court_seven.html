@@ -12,44 +12,35 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background: linear-gradient(135deg, #6dd5ed, #2193b0); /* Background gradient for a dynamic look */
+            background: linear-gradient(135deg, #6dd5ed, #2193b0);
         }
         .scoreboard {
             background: white;
             padding: 40px;
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); /* Enhanced shadow for depth */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             text-align: center;
-            width: 700px; /* Adjusted width for better spacing */
+            width: 800px;
             display: flex;
-            flex-direction: column;
-        }
-        h2 {
-            margin-bottom: 30px;
-            font-size: 28px;
-            color: #333;
-        }
-        .score-container {
-            display: flex;
-            justify-content: space-between; /* Space between players */
+            justify-content: space-between; /* Ensures teams are side by side */
             align-items: center;
-            margin: 30px 0; /* Increased margin for better spacing */
         }
-        .player {
+        .team {
             display: flex;
             flex-direction: column;
             align-items: center;
         }
-        .score {
-            font-size: 50px; /* Increased size for better visibility */
-            margin: 10px 0;
-            color: #ff5722; /* Bright color for emphasis */
-            font-weight: bold;
-        }
-        .name {
+        .team .name {
             font-size: 20px;
             font-weight: bold;
             color: #555;
+            margin: 10px 0;
+        }
+        .score {
+            font-size: 50px;
+            margin: 0 20px;
+            color: #ff5722;
+            font-weight: bold;
         }
         .set-results {
             text-align: center;
@@ -57,7 +48,7 @@
         }
         .set {
             margin: 10px 0;
-            font-size: 22px; /* Larger font size for set results */
+            font-size: 22px;
         }
         .set span {
             padding: 8px 16px;
@@ -72,61 +63,53 @@
             font-weight: bold;
             color: #333;
         }
-        /* Hover effect for player names */
-        .player:hover .name {
-            color: #007bff;
-            transition: color 0.3s ease;
-        }
     </style>
 </head>
 <body>
     <div class="scoreboard">
-        <h2>Badminton Player Scores</h2>
-        <div class="score-container">
-            <div class="player" id="player1">
-                <span class="name" id="player1-name" ></span>
-                <span class="score" id="player1-score">0</span>
-            </div>
-            <div class="player" id="player2">
-                <span class="name" id="player2-name"></span>
-                <span class="score" id="player2-score">0</span>
-            </div>
+        <div class="team" id="team1">
+            <span class="name" id="player1-name"></span>
+            <span class="name" id="player1b-name"></span>
         </div>
 
+        <div class="score" id="player1-score">0</div>
         <div class="set-results">
-            <div class="set-results">
-                <div class="set">
-                    <strong>Set 1:</strong> 
-                    <span id="player1-set1"></span> - <span id="player2-set1"></span>
-                </div>
-                <div class="set">
-                    <strong>Set 2:</strong> 
-                    <span id="player1-set2"></span> - <span id="player2-set2"></span>
-                </div>
-                <div class="set">
-                    <strong>Set 3:</strong> 
-                    <span id="player1-set3"></span> - <span id="player2-set3"></span>
-                </div>
+            <div class="set">
+                <span id="player1-set1"></span> - <span id="player2-set1"></span>
+            </div>
+            <div class="set">
+                <span id="player1-set2"></span> - <span id="player2-set2"></span>
+            </div>
+            <div class="set">
+                <span id="player1-set3"></span> - <span id="player2-set3"></span>
             </div>
         </div>
+        <div class="score" id="player2-score">0</div>
 
-        <div class="current-set">
-            Current Set: <span id="current-set">1</span>
+        <div class="team" id="team2">
+            <span class="name" id="player2-name"></span>
+            <span class="name" id="player2b-name"></span>
         </div>
+
+
+
     </div>
+
 
     <script>
         var courtName = "court7";
         var ws = new WebSocket('ws://' + window.location.host + '/ws/court/' + courtName + '/');
 
         ws.onopen = function() {
-            console.log('WebSocket connected to court1');
+            console.log('WebSocket connected to court7');
         };
 
         ws.onmessage = function(e) {
             const data = JSON.parse(e.data);
             document.getElementById('player1-name').textContent = data['player1_name'];
+            document.getElementById('player1b-name').textContent = data['player1b_name'];
             document.getElementById('player2-name').textContent = data['player2_name'];
+            document.getElementById('player2b-name').textContent = data['player2b_name'];
             document.getElementById('player1-score').textContent = data['player1_score'];
             document.getElementById('player2-score').textContent = data['player2_score'];
 

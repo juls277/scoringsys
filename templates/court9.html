@@ -91,31 +91,45 @@
             <div class="score-container">
                 <div class="player" id="player1">
                     <label for="player1-name">Select Player 1:</label>
-    <select name="name1" id="player1-name">
-        <option value="" disabled>Select Player 1</option>
-        {% for player in players %}
-            <option value="{{ player.name }} {{ player.age_category }} {{ player.country }}" {% if player.name == player1_name %}selected{% endif %}>
-                {{ player.name }} ({{ player.age_category }}, {{ player.country }})
-            </option>
-        {% endfor %}
-    </select>
+                    <select name="name1" id="player1-name">
+                        <option value="" disabled>Select Player 1</option>
+                        <option value="" ></option>
+                        {% for player in players %}
+                            <option value="{{ player.name }} {{ player.age_category }} {{ player.country }}" {% if player.name == player1_name %}selected{% endif %}>
+                                {{ player.name }} ({{ player.age_category }}, {{ player.country }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <div class="player" id="player1b">
+                    <label for="player1-name">Select Player 1:</label>
+                    <select name="name1" id="player1b-name">
+                        <option value="" disabled>Select Player 1</option>
+                        <option value="" ></option>
+                        {% for player in players %}
+                            <option value="{{ player.name }} {{ player.age_category }} {{ player.country }}" {% if player.name == player1_name %}selected{% endif %}>
+                                {{ player.name }} ({{ player.age_category }}, {{ player.country }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
                     <div class="score-buttons">
                         <button type="button" onclick="changeScore('decrease1')">-</button>
                         <span class="score" id="player1-score">{{ player1_score }}</span>
                         <button type="button" onclick="changeScore('increase1')">+</button>
                     </div>
                 </div>
+
                 <div class="set-results">
                     <div class="set">
-                        <strong>Set 1:</strong> 
+                        <strong>Set 1:</strong>
                         <span id="player1-set1"></span> - <span id="player2-set1"></span>
                     </div>
                     <div class="set">
-                        <strong>Set 2:</strong> 
+                        <strong>Set 2:</strong>
                         <span id="player1-set2"></span> - <span id="player2-set2"></span>
                     </div>
                     <div class="set">
-                        <strong>Set 3:</strong> 
+                        <strong>Set 3:</strong>
                         <span id="player1-set3"></span> - <span id="player2-set3"></span>
                     </div>
                 </div>
@@ -123,12 +137,25 @@
                     <label for="player2-name">Select Player 2:</label>
                     <select name="name2" id="player2-name">
                         <option value="" disabled>Select Player 2</option>
+                        <option value="" ></option>
                         {% for player in players %}
                             <option value="{{ player.name }} {{ player.age_category }} {{ player.country }}" {% if player.name == player2_name  %}selected{% endif %}>
                                 {{ player.name }} ({{ player.age_category }}, {{ player.country }})
                             </option>
                         {% endfor %}
                     </select>
+                    <div class="player" id="player2b">
+                        <label for="player2-name">Select Player 2:</label>
+                        <select name="name2" id="player2b-name">
+                            <option value="" disabled>Select Player 2</option>
+                            <option value="" ></option>
+                            {% for player in players %}
+                                <option value="{{ player.name }} {{ player.age_category }} {{ player.country }}" {% if player.name == player2_name  %}selected{% endif %}>
+                                    {{ player.name }} ({{ player.age_category }}, {{ player.country }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
                     <div class="score-buttons">
                         <button type="button" onclick="changeScore('decrease2')">-</button>
                         <span class="score" id="player2-score">{{ player2_score }}</span>
@@ -144,7 +171,7 @@
             <button type="button" onclick="switchPlayers()">Switch Players</button>
         </form>
     </div>
-    
+
     <script>
         // Establish WebSocket connection
         var courtName = "court9";
@@ -152,7 +179,7 @@
 
         // When the WebSocket connection is opened
         ws.onopen = function(e) {
-            console.log('WebSocket is connected to court1');
+            console.log('WebSocket is connected to court9');
         };
 
         // When a message is received from the server
@@ -163,65 +190,141 @@
             document.getElementById('player1-score').textContent = data['player1_score'];
             document.getElementById('player2-score').textContent = data['player2_score'];
 
-           
-           
+
+
 
         };
         // Listen for changes to Player 1's selection
-            // Listen for changes to Player 1's selection
         document.getElementById('player1-name').addEventListener('change', function() {
-            const player1_name = this.value;
+            const player1_name = document.getElementById('player1-name').value;
+            const player1b_name = document.getElementById('player1b-name').value; // Second player for Team 1
             const player2_name = document.getElementById('player2-name').value;
-            const player1_score = document.getElementById('player1-score').textContent;
-            const player2_score = document.getElementById('player2-score').textContent;
-            const current_set = document.getElementById('current-set').textContent;
+            const player2b_name = document.getElementById('player2b-name').value; // Second player for Team 2
+
+            console.log({
+                'player1_name': player1_name,
+                'player1b_name': player1b_name,
+                'player2_name': player2_name,
+                'player2b_name': player2b_name,
+            }); // Add this log to ensure the data is being sent correctly.
 
             ws.send(JSON.stringify({
                 'player1_name': player1_name,
+                'player1b_name': player1b_name,
                 'player2_name': player2_name,
-                'player1_score': player1_score,
-                'player2_score': player2_score,
-                'current_set': current_set,
+                'player2b_name': player2b_name,
+                'player1_score': document.getElementById('player1-score').textContent,
+                'player2_score': document.getElementById('player2-score').textContent,
+                'current_set': document.getElementById('current-set').textContent,
                 'player1_set1': document.getElementById('player1-set1').textContent,
-                'player1_set2': document.getElementById('player1-set2').textContent,
-                'player1_set3': document.getElementById('player1-set3').textContent,
                 'player2_set1': document.getElementById('player2-set1').textContent,
+                'player1_set2': document.getElementById('player1-set2').textContent,
                 'player2_set2': document.getElementById('player2-set2').textContent,
+                'player1_set3': document.getElementById('player1-set3').textContent,
                 'player2_set3': document.getElementById('player2-set3').textContent
             }));
         });
 
-        // Listen for changes to Player 2's selection
+
+        document.getElementById('player1b-name').addEventListener('change', function() {
+            const player1_name = document.getElementById('player1-name').value;
+            const player1b_name = document.getElementById('player1b-name').value; // Second player for Team 1
+            const player2_name = document.getElementById('player2-name').value;
+            const player2b_name = document.getElementById('player2b-name').value; // Second player for Team 2
+
+            console.log({
+                'player1_name': player1_name,
+                'player1b_name': player1b_name,
+                'player2_name': player2_name,
+                'player2b_name': player2b_name,
+            }); // Add this log to ensure the data is being sent correctly.
+
+            ws.send(JSON.stringify({
+                'player1_name': player1_name,
+                'player1b_name': player1b_name,
+                'player2_name': player2_name,
+                'player2b_name': player2b_name,
+                'player1_score': document.getElementById('player1-score').textContent,
+                'player2_score': document.getElementById('player2-score').textContent,
+                'current_set': document.getElementById('current-set').textContent,
+                'player1_set1': document.getElementById('player1-set1').textContent,
+                'player2_set1': document.getElementById('player2-set1').textContent,
+                'player1_set2': document.getElementById('player1-set2').textContent,
+                'player2_set2': document.getElementById('player2-set2').textContent,
+                'player1_set3': document.getElementById('player1-set3').textContent,
+                'player2_set3': document.getElementById('player2-set3').textContent
+            }));
+        });
         document.getElementById('player2-name').addEventListener('change', function() {
             const player1_name = document.getElementById('player1-name').value;
-            const player2_name = this.value;
-            const player1_score = document.getElementById('player1-score').textContent;
-            const player2_score = document.getElementById('player2-score').textContent;
-            const current_set = document.getElementById('current-set').textContent;
+            const player1b_name = document.getElementById('player1b-name').value; // Second player for Team 1
+            const player2_name = document.getElementById('player2-name').value;
+            const player2b_name = document.getElementById('player2b-name').value; // Second player for Team 2
+
+            console.log({
+                'player1_name': player1_name,
+                'player1b_name': player1b_name,
+                'player2_name': player2_name,
+                'player2b_name': player2b_name,
+            }); // Add this log to ensure the data is being sent correctly.
 
             ws.send(JSON.stringify({
                 'player1_name': player1_name,
+                'player1b_name': player1b_name,
                 'player2_name': player2_name,
-                'player1_score': player1_score,
-                'player2_score': player2_score,
-                'current_set': current_set,
+                'player2b_name': player2b_name,
+                'player1_score': document.getElementById('player1-score').textContent,
+                'player2_score': document.getElementById('player2-score').textContent,
+                'current_set': document.getElementById('current-set').textContent,
                 'player1_set1': document.getElementById('player1-set1').textContent,
-                'player1_set2': document.getElementById('player1-set2').textContent,
-                'player1_set3': document.getElementById('player1-set3').textContent,
                 'player2_set1': document.getElementById('player2-set1').textContent,
+                'player1_set2': document.getElementById('player1-set2').textContent,
                 'player2_set2': document.getElementById('player2-set2').textContent,
+                'player1_set3': document.getElementById('player1-set3').textContent,
+                'player2_set3': document.getElementById('player2-set3').textContent
+            }));
+        });
+        document.getElementById('player2b-name').addEventListener('change', function() {
+            const player1_name = document.getElementById('player1-name').value;
+            const player1b_name = document.getElementById('player1b-name').value; // Second player for Team 1
+            const player2_name = document.getElementById('player2-name').value;
+            const player2b_name = document.getElementById('player2b-name').value; // Second player for Team 2
+
+            console.log({
+                'player1_name': player1_name,
+                'player1b_name': player1b_name,
+                'player2_name': player2_name,
+                'player2b_name': player2b_name,
+            }); // Add this log to ensure the data is being sent correctly.
+
+            ws.send(JSON.stringify({
+                'player1_name': player1_name,
+                'player1b_name': player1b_name,
+                'player2_name': player2_name,
+                'player2b_name': player2b_name,
+                'player1_score': document.getElementById('player1-score').textContent,
+                'player2_score': document.getElementById('player2-score').textContent,
+                'current_set': document.getElementById('current-set').textContent,
+                'player1_set1': document.getElementById('player1-set1').textContent,
+                'player2_set1': document.getElementById('player2-set1').textContent,
+                'player1_set2': document.getElementById('player1-set2').textContent,
+                'player2_set2': document.getElementById('player2-set2').textContent,
+                'player1_set3': document.getElementById('player1-set3').textContent,
                 'player2_set3': document.getElementById('player2-set3').textContent
             }));
         });
 
 
-        
+
+
 
 
         function switchPlayers() {
     // Get current player names and scores
     let player1_name = document.getElementById('player1-name').value;
     let player2_name = document.getElementById('player2-name').value;
+    let player1b_name = document.getElementById('player1b-name').value;
+    let player2b_name = document.getElementById('player2b-name').value;
     let player1_score = document.getElementById('player1-score').textContent;
     let player2_score = document.getElementById('player2-score').textContent;
 
@@ -236,6 +339,8 @@
     // Swap player names
     document.getElementById('player1-name').value = player2_name;
     document.getElementById('player2-name').value = player1_name;
+    document.getElementById('player1b-name').value = player2b_name;
+    document.getElementById('player2b-name').value = player1b_name;
 
     // Swap player scores
     document.getElementById('player1-score').textContent = player2_score;
@@ -255,6 +360,8 @@
     ws.send(JSON.stringify({
         'player1_name': player2_name, // Player 1 is now Player 2
         'player2_name': player1_name, // Player 2 is now Player 1
+        'player1b_name': player2b_name, // Player 1 is now Player 2
+        'player2b_name': player1b_name, // Player 1 is now Player 2
         'player1_score': player2_score,
         'player2_score': player1_score,
         'current_set': current_set,
@@ -271,6 +378,8 @@
         function changeScore(action) {
     const player1_name = document.getElementById('player1-name').value;
     const player2_name = document.getElementById('player2-name').value;
+    const player1b_name = document.getElementById('player1b-name').value;
+    const player2b_name = document.getElementById('player2b-name').value;
 
     let player1_score = parseInt(document.getElementById('player1-score').textContent);
     let player2_score = parseInt(document.getElementById('player2-score').textContent);
@@ -294,23 +403,23 @@
     // Check for winning conditions and update set results
     let setWon = false;
 
-    if (current_set === 1 && ((player1_score >= 21 && player1_score - player2_score >= 2) || 
-        (player1_score >= 30 && player1_score > player2_score) || 
-        (player2_score >= 21 && player2_score - player1_score >= 2) || 
+    if (current_set === 1 && ((player1_score >= 21 && player1_score - player2_score >= 2) ||
+        (player1_score >= 30 && player1_score > player2_score) ||
+        (player2_score >= 21 && player2_score - player1_score >= 2) ||
         (player2_score >= 30 && player2_score > player1_score))) {
         document.getElementById('player1-set1').textContent = player1_score;
         document.getElementById('player2-set1').textContent = player2_score;
         setWon = true;
-    } else if (current_set === 2 && ((player1_score >= 21 && player1_score - player2_score >= 2) || 
-        (player1_score >= 30 && player1_score > player2_score) || 
-        (player2_score >= 21 && player2_score - player1_score >= 2) || 
+    } else if (current_set === 2 && ((player1_score >= 21 && player1_score - player2_score >= 2) ||
+        (player1_score >= 30 && player1_score > player2_score) ||
+        (player2_score >= 21 && player2_score - player1_score >= 2) ||
         (player2_score >= 30 && player2_score > player1_score))) {
         document.getElementById('player1-set2').textContent = player1_score;
         document.getElementById('player2-set2').textContent = player2_score;
         setWon = true;
-    } else if (current_set === 3 && ((player1_score >= 21 && player1_score - player2_score >= 2) || 
-        (player1_score >= 30 && player1_score > player2_score) || 
-        (player2_score >= 21 && player2_score - player1_score >= 2) || 
+    } else if (current_set === 3 && ((player1_score >= 21 && player1_score - player2_score >= 2) ||
+        (player1_score >= 30 && player1_score > player2_score) ||
+        (player2_score >= 21 && player2_score - player1_score >= 2) ||
         (player2_score >= 30 && player2_score > player1_score))) {
         document.getElementById('player1-set3').textContent = player1_score;
         document.getElementById('player2-set3').textContent = player2_score;
@@ -334,6 +443,8 @@
         ws.send(JSON.stringify({
             'player1_name': player1_name,
             'player2_name': player2_name,
+            'player1b_name': player1b_name,
+            'player2b_name': player2b_name,
             'player1_score': player1_score,
             'player2_score': player2_score,
             'current_set': current_set,

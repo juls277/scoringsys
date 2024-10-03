@@ -93,6 +93,7 @@
                     <label for="player1-name">Select Player 1:</label>
                     <select name="name1" id="player1-name">
                         <option value="" disabled>Select Player 1</option>
+                        <option value="" ></option>
                         {% for player in players %}
                             <option value="{{ player.name }} {{ player.age_category }} {{ player.country }}" {% if player.name == player1_name %}selected{% endif %}>
                                 {{ player.name }} ({{ player.age_category }}, {{ player.country }})
@@ -103,6 +104,7 @@
                     <label for="player1-name">Select Player 1:</label>
                     <select name="name1" id="player1b-name">
                         <option value="" disabled>Select Player 1</option>
+                        <option value="" ></option>
                         {% for player in players %}
                             <option value="{{ player.name }} {{ player.age_category }} {{ player.country }}" {% if player.name == player1_name %}selected{% endif %}>
                                 {{ player.name }} ({{ player.age_category }}, {{ player.country }})
@@ -135,6 +137,7 @@
                     <label for="player2-name">Select Player 2:</label>
                     <select name="name2" id="player2-name">
                         <option value="" disabled>Select Player 2</option>
+                        <option value="" ></option>
                         {% for player in players %}
                             <option value="{{ player.name }} {{ player.age_category }} {{ player.country }}" {% if player.name == player2_name  %}selected{% endif %}>
                                 {{ player.name }} ({{ player.age_category }}, {{ player.country }})
@@ -145,6 +148,7 @@
                         <label for="player2-name">Select Player 2:</label>
                         <select name="name2" id="player2b-name">
                             <option value="" disabled>Select Player 2</option>
+                            <option value="" ></option>
                             {% for player in players %}
                                 <option value="{{ player.name }} {{ player.age_category }} {{ player.country }}" {% if player.name == player2_name  %}selected{% endif %}>
                                     {{ player.name }} ({{ player.age_category }}, {{ player.country }})
