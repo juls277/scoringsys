@@ -59,10 +59,10 @@ def login_view(request):
         elif username == 'court9':
             auth_login(request, user)
             return redirect('court9')
-        
+
         elif user.is_superuser:  # Check if the user is an admin (superuser)
                 auth_login(request, user)
-                return redirect(reverse('admin:index')) 
+                return redirect(reverse('admin:index'))
         else:
             return render(request, 'login.html', {'error': 'Invalid username or password'})
     return render(request, 'login.html')

@@ -26,12 +26,13 @@ SECRET_KEY = 'django-insecure-x-6g=n7r5kqcj$c#54#81m3gt-5f)h*frs62mi4c59d&kky+ea
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["www.pythonanywhere.com/user/ksaver", "ksaver.pythonanywhere.com","127.0.0.1"]
+ALLOWED_HOSTS = ['scoringsys-red-bird-4718.fly.dev', 'ksaver.pythonanywhere.com', '127.0.0.1', 'scoringsys-nameless-darkness-7277.fly.dev']
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,7 +43,9 @@ INSTALLED_APPS = [
     'channels',
     
 ]
-
+CSRF_TRUSTED_ORIGINS = [
+    'https://scoringsys-red-bird-4718.fly.dev',  # Add this host
+]
 # Define the ASGI application
 ASGI_APPLICATION = "scoringsys.asgi.application"
 
@@ -92,7 +95,7 @@ WSGI_APPLICATION = 'scoringsys.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': 'db.sqlite3',
     }
 }
 

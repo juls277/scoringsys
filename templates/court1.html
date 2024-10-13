@@ -175,7 +175,7 @@
     <script>
         // Establish WebSocket connection
         var courtName = "court1";
-        var ws = new WebSocket('ws://' + window.location.host + '/ws/court/' + courtName + '/');
+        var ws = new WebSocket('wss://' + window.location.host + '/wss/court/' + courtName + '/');
 
         // When the WebSocket connection is opened
         ws.onopen = function(e) {

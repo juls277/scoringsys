@@ -98,7 +98,7 @@
 
     <script>
         var courtName = "court1";
-        var ws = new WebSocket('ws://' + window.location.host + '/ws/court/' + courtName + '/');
+        var ws = new WebSocket('wss://' + window.location.host + '/wss/court/' + courtName + '/');
 
         ws.onopen = function() {
             console.log('WebSocket connected to court1');
