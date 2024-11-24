@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-x-6g=n7r5kqcj$c#54#81m3gt-5f)h*frs62mi4c59d&kky+ea
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['scoringsys-red-bird-4718.fly.dev', 'ksaver.pythonanywhere.com', '127.0.0.1', 'scoringsys-nameless-darkness-7277.fly.dev']
+ALLOWED_HOSTS = ['scoringsys-red-bird-4718.fly.dev', 'ksaver.pythonanywhere.com', '127.0.0.1',"localhost", "localhost:8000" 'scoringsys-nameless-darkness-7277.fly.dev']
 
 
 # Application definition

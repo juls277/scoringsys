@@ -10,82 +10,120 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
             background-color: #f2f2f2;
+            height: 100vh;
+            margin: 0;
         }
+
         .scoreboard {
             background: white;
-            padding: 30px;
+            padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            width: 600px; /* Adjusted width for better spacing */
+            width: 90vw;
+            max-width: 420px;
+            height: 90vh;
             display: flex;
             flex-direction: column;
+            justify-content: space-between;
+            text-align: center;
         }
+
         h2 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .team-section {
             margin-bottom: 20px;
         }
-        .score-container {
-            display: flex;
-            justify-content: space-between; /* Space between players and sets */
-            align-items: center;
-            margin: 20px 0; /* Margin for spacing */
-        }
-        .player {
+
+        .dropdown-container {
             display: flex;
             flex-direction: column;
-            align-items: center; /* Center align player elements */
+            gap: 10px;
+            margin: 10px 0;
         }
-        .score-buttons {
-            display: flex;
-            align-items: center; /* Center the buttons vertically with the score */
+
+        .dropdown {
+            position: relative;
         }
-        input[type="text"] {
-            width: 150px;
-            padding: 5px;
-            margin: 0 10px;
-            font-size: 16px;
-            text-align: center;
-        }
-        button {
-            padding: 10px 15px;
-            margin: 5px; /* Adjusted margin for horizontal spacing */
+
+        select {
+            width: 100%;
+            padding: 10px;
+            font-size: 1rem;
             cursor: pointer;
+        }
+
+        select optgroup {
+            display: flex;
+            flex-direction: column;
+        }
+
+        select option {
+            display: inline-block;
+            padding: 10px;
+            font-size: 1rem;
+            width: 100%;
+            border-bottom: 1px solid #ddd;
+        }
+
+        select optgroup[label] {
+            font-weight: bold;
+            font-size: 1rem;
+            color: #555;
+        }
+
+        .score-controls {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        button {
+            font-size: 1.5rem;
+            padding: 10px 20px;
+            margin: 0 10px;
             border: none;
-            border-radius: 5px;
+            border-radius: 10px;
             background-color: #007bff;
             color: white;
-            font-weight: bold;
-            font-size: 16px;
+            cursor: pointer;
         }
+
         button:hover {
             background-color: #0056b3;
         }
-        .score {
-            font-size: 24px;
-            margin: 0 10px; /* Margin for spacing */
+
+        .score, .set-score {
+            font-size: 2rem;
+            margin: 0 20px;
         }
-        .set-results {
-            text-align: center; /* Center the set results */
+
+        .switch-teams {
+            background-color: #28a745;
+            font-size: 1.5rem;
+            padding: 10px;
         }
-        .set {
-            margin: 5px 0; /* Margin for spacing between sets */
+
+        .switch-teams:hover {
+            background-color: #218838;
         }
-        .logout-button {
-            background-color: #f44336;
-            margin-top: 20px;
-            padding: 10px 20px;
-            width: 100%;
+
+        .set-controls {
+            margin-top: 15px;
         }
-        .logout-button:hover {
-            background-color: #d32f2f;
+
+        .set-label {
+            font-size: 1.5rem;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
     <div class="scoreboard">
-        <h2>Badminton Player Scores</h2>
         <form method="POST">
             {% csrf_token %}
             <div class="score-container">
@@ -95,8 +133,8 @@
                         <option value="" disabled>Select Player 1</option>
                         <option value="" ></option>
                         {% for player in players %}
-                            <option value="{{ player.name }} {{ player.age_category }} {{ player.country }}" {% if player.name == player1_name %}selected{% endif %}>
-                                {{ player.name }} ({{ player.age_category }}, {{ player.country }})
+                            <option value="{{ player.name }} {{ player.country }}" {% if player.name == player1_name %}selected{% endif %}>
+                                {{ player.name }} ({{ player.country }})
                             </option>
                         {% endfor %}
                     </select>
@@ -106,8 +144,8 @@
                         <option value="" disabled>Select Player 1</option>
                         <option value="" ></option>
                         {% for player in players %}
-                            <option value="{{ player.name }} {{ player.age_category }} {{ player.country }}" {% if player.name == player1_name %}selected{% endif %}>
-                                {{ player.name }} ({{ player.age_category }}, {{ player.country }})
+                            <option value="{{ player.name }} {{ player.country }}" {% if player.name == player1_name %}selected{% endif %}>
+                                {{ player.name }} ({{ player.country }})
                             </option>
                         {% endfor %}
                     </select>
@@ -139,8 +177,8 @@
                         <option value="" disabled>Select Player 2</option>
                         <option value="" ></option>
                         {% for player in players %}
-                            <option value="{{ player.name }} {{ player.age_category }} {{ player.country }}" {% if player.name == player2_name  %}selected{% endif %}>
-                                {{ player.name }} ({{ player.age_category }}, {{ player.country }})
+                            <option value="{{ player.name }} {{ player.country }}" {% if player.name == player2_name  %}selected{% endif %}>
+                                {{ player.name }} ({{ player.country }})
                             </option>
                         {% endfor %}
                     </select>
@@ -150,8 +188,8 @@
                             <option value="" disabled>Select Player 2</option>
                             <option value="" ></option>
                             {% for player in players %}
-                                <option value="{{ player.name }} {{ player.age_category }} {{ player.country }}" {% if player.name == player2_name  %}selected{% endif %}>
-                                    {{ player.name }} ({{ player.age_category }}, {{ player.country }})
+                                <option value="{{ player.name }} {{ player.country }}" {% if player.name == player2_name  %}selected{% endif %}>
+                                    {{ player.name }} ({{ player.country }})
                                 </option>
                             {% endfor %}
                         </select>
@@ -191,7 +229,7 @@
             document.getElementById('player2-score').textContent = data['player2_score'];
 
 
-           
+
 
         };
         // Listen for changes to Player 1's selection
@@ -316,7 +354,7 @@
 
 
 
-        
+
 
 
         function switchPlayers() {
@@ -403,23 +441,23 @@
     // Check for winning conditions and update set results
     let setWon = false;
 
-    if (current_set === 1 && ((player1_score >= 21 && player1_score - player2_score >= 2) || 
-        (player1_score >= 30 && player1_score > player2_score) || 
-        (player2_score >= 21 && player2_score - player1_score >= 2) || 
+    if (current_set === 1 && ((player1_score >= 21 && player1_score - player2_score >= 2) ||
+        (player1_score >= 30 && player1_score > player2_score) ||
+        (player2_score >= 21 && player2_score - player1_score >= 2) ||
         (player2_score >= 30 && player2_score > player1_score))) {
         document.getElementById('player1-set1').textContent = player1_score;
         document.getElementById('player2-set1').textContent = player2_score;
         setWon = true;
-    } else if (current_set === 2 && ((player1_score >= 21 && player1_score - player2_score >= 2) || 
-        (player1_score >= 30 && player1_score > player2_score) || 
-        (player2_score >= 21 && player2_score - player1_score >= 2) || 
+    } else if (current_set === 2 && ((player1_score >= 21 && player1_score - player2_score >= 2) ||
+        (player1_score >= 30 && player1_score > player2_score) ||
+        (player2_score >= 21 && player2_score - player1_score >= 2) ||
         (player2_score >= 30 && player2_score > player1_score))) {
         document.getElementById('player1-set2').textContent = player1_score;
         document.getElementById('player2-set2').textContent = player2_score;
         setWon = true;
-    } else if (current_set === 3 && ((player1_score >= 21 && player1_score - player2_score >= 2) || 
-        (player1_score >= 30 && player1_score > player2_score) || 
-        (player2_score >= 21 && player2_score - player1_score >= 2) || 
+    } else if (current_set === 3 && ((player1_score >= 21 && player1_score - player2_score >= 2) ||
+        (player1_score >= 30 && player1_score > player2_score) ||
+        (player2_score >= 21 && player2_score - player1_score >= 2) ||
         (player2_score >= 30 && player2_score > player1_score))) {
         document.getElementById('player1-set3').textContent = player1_score;
         document.getElementById('player2-set3').textContent = player2_score;

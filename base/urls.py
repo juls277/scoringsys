@@ -28,7 +28,7 @@ urlpatterns = [
     path('court_seven/', views.court_seven_view, name='court_seven' ),
     path('court_eight/', views.court_eight_view, name='court_eight' ),
     path('court_nine/', views.court_nine_view, name='court_nine' ),
-    
+    path('get_players/', views.get_players, name='get_players'),
     
     
 
