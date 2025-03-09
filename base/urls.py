@@ -9,7 +9,7 @@ urlpatterns = [
     path('', views.home, name = "home"),
     path('admin/', admin.site.urls),
     path('login/', views.login_view, name="login"),
-    path('court1/', views.scoreboard_view, name="court1"),
+    path('court1/', views.court1_view, name="court1"),
     path('court2/', views.court2_view, name="court2"),
     path('court3/', views.court3_view, name="court3"),
     path('court4/', views.court4_view, name="court4"),
@@ -29,7 +29,7 @@ urlpatterns = [
     path('court_eight/', views.court_eight_view, name='court_eight' ),
     path('court_nine/', views.court_nine_view, name='court_nine' ),
     path('get_players/', views.get_players, name='get_players'),
-    
-    
+
+
 
 ]

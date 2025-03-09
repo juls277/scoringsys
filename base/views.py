@@ -1,16 +1,11 @@
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from django.http import HttpResponse
 from django.contrib.auth import authenticate, login as auth_login, logout
-from django.contrib.auth.models import User
 from django.http import JsonResponse
-from django.db import models
-from .models import Player
+from .models import Player, Category
 
 # Create your views here.
 # views.py
-
-from .forms import PlayerSelectionForm
 
 def get_players(request):
     # Get gender filter from request parameters
@@ -75,85 +70,12 @@ def login_view(request):
     return render(request, 'login.html')
 
 
-def scoreboard_view(request):
-    # Retrieve players
-    players = Player.objects.all().values('name', 'age_category', 'country', "gender")
-    players_list = list(players)
-    all_players = Player.objects.all()  # Fetch all players
-
-    # Initialize or retrieve session variables
-    player1_name = request.session.get('player1_name', players_list[0] if players_list else {})
-    player2_name = request.session.get('player2_name', players_list[1] if len(players_list) > 1 else {})
-    player1_score = int(request.session.get('player1_score', 0))
-    player2_score = int(request.session.get('player2_score', 0))
-    current_set = int(request.session.get('current_set', 1))
-    player1_sets = request.session.get('player1_sets', [0, 0, 0])
-    player2_sets = request.session.get('player2_sets', [0, 0, 0])
-
-    if request.method == 'POST':
-        action = request.POST.get('action')
-
-        # Adjust scores based on the action
-        if action == 'increase1':
-            player1_score += 1
-        elif action == 'decrease1' and player1_score > 0:
-            player1_score -= 1
-        elif action == 'increase2':
-            player2_score += 1
-        elif action == 'decrease2' and player2_score > 0:
-            player2_score -= 1
-        elif action == 'switch':
-            player1_name, player2_name = player2_name, player1_name
-            player1_score, player2_score = player2_score, player1_score
-
-        # Check if the current set is won
-        if current_set <= 3:
-            if (player1_score >= 21 and player1_score - player2_score >= 2) or player1_score == 30:
-                player1_sets[current_set - 1] = player1_score
-                player2_sets[current_set - 1] = player2_score
-                current_set += 1
-                player1_score = 0
-                player2_score = 0
-            elif (player2_score >= 21 and player2_score - player1_score >= 2) or player2_score == 30:
-                player1_sets[current_set - 1] = player1_score
-                player2_sets[current_set - 1] = player2_score
-                current_set += 1
-                player1_score = 0
-                player2_score = 0
-
-        # Store updated values in session
-        request.session['player1_name'] = player1_name
-        request.session['player2_name'] = player2_name
-        request.session['player1_score'] = player1_score
-        request.session['player2_score'] = player2_score
-        request.session['current_set'] = current_set
-        request.session['player1_sets'] = player1_sets
-        request.session['player2_sets'] = player2_sets
-
-    # Prepare context for the template
-    context = {
-        "all_players": all_players,
-        'players': players_list,
-        'player1_name': player1_name,
-        'player2_name': player2_name,
-        'player1_score': player1_score,
-        'player2_score': player2_score,
-        'current_set': current_set,
-        'player1_sets': player1_sets,
-        'player2_sets': player2_sets,
-    }
-
-    return render(request, 'court1.html', context)
-
-
-
 def logout_view(request):
     logout(request)
     return redirect('home')
 
 def court_one_view(request):
     return render(request, 'court_one.html')
-
 def court_two_view(request):
     return render(request, 'court_two.html')
 def court_three_view(request):
@@ -172,31 +94,34 @@ def court_nine_view(request):
     return render(request, 'court_nine.html')
 
 
+def court1_view(request):
+    # Retrieve selected age category from GET or default to "all"
+    selected_age_category = request.GET.get('age_category', 'all')
 
-def court2_view(request):
-      # Retrieve scores from session, or initialize if not set
-    # Retrieve scores from session, or initialize if not set
-    #player1_name = request.POST.get('name1', request.session.get('player1_name', 'Player 1'))
-    #player2_name = request.POST.get('name2', request.session.get('player2_name', 'Player 2'))
-    players = Player.objects.all().values('name', 'age_category', 'country')
-    
-    # Convert QuerySet to a list of dictionaries
-    players_list = list(players)
-    player1_name =  players_list
-    player2_name = players_list
+    # Filter players based on the selected age category
+    if selected_age_category == 'all' or selected_age_category.lower() == 'open':
+        players = Player.objects.all()
+    else:
+        players = Player.objects.filter(age_categories__name=selected_age_category)
+
+    # Group players by gender for display
+    male_players = players.filter(gender='M')
+    female_players = players.filter(gender='F')
+
+    age_categories = Category.objects.all
+
+    # Session variables
+    player1_name = request.session.get('player1_name', '')
+    player2_name = request.session.get('player2_name', '')
     player1_score = int(request.session.get('player1_score', 0))
     player2_score = int(request.session.get('player2_score', 0))
     current_set = int(request.session.get('current_set', 1))
-    player1_sets_0 = int(request.session.get('player1_sets.0', 0))
-    player1_sets_1 = int(request.session.get('player1_sets.1', 0))
-    player1_sets_2 = int(request.session.get('player1_sets.2', 0))
-    player2_sets_0 = int(request.session.get('player2_sets.0', 0))
-    player2_sets_1 = int(request.session.get('player2_sets.1', 0))
-    player2_sets_2 = int(request.session.get('player2_sets.2', 0))
+    player1_sets = request.session.get('player1_sets', [0, 0, 0])
+    player2_sets = request.session.get('player2_sets', [0, 0, 0])
 
+    # Handle form submissions
     if request.method == 'POST':
         action = request.POST.get('action')
-
         if action == 'increase1':
             player1_score += 1
         elif action == 'decrease1' and player1_score > 0:
@@ -209,92 +134,156 @@ def court2_view(request):
             player1_name, player2_name = player2_name, player1_name
             player1_score, player2_score = player2_score, player1_score
 
-        while(current_set<=3):
-            if (current_set == 1):
-                if (player1_score == 19 and player2_score == 21 ) or (player1_score == 21 and player2_score == 19):
-                    player1_sets_0 == player1_score
-                    player2_sets_0 == player2_score
-                    current_set+=1
-                    player1_score = 0
-                    player2_score = 0
-            if (current_set == 2):
-                if (player1_score == 19 and player2_score == 21 ) or (player1_score == 21 and player2_score == 19):
-                    player1_sets_1 == player1_score
-                    player2_sets_1 == player2_score
-                    current_set+=1
-                    player1_score = 0
-                    player2_score = 0
-            if (current_set == 3):        
-                if (player1_score == 19 and player2_score == 21 ) or (player1_score == 21 and player2_score == 19):
-                    player1_sets_2 == player1_score
-                    player2_sets_2 == player2_score
-                    current_set+=1
-                    player1_score = 0
-                    player2_score = 0
+        # Check if current set is won
+        if current_set <= 3:
+            if (player1_score >= 21 and player1_score - player2_score >= 2) or player1_score == 30:
+                player1_sets[current_set - 1] = player1_score
+                player2_sets[current_set - 1] = player2_score
+                current_set += 1
+                player1_score, player2_score = 0, 0
+            elif (player2_score >= 21 and player2_score - player1_score >= 2) or player2_score == 30:
+                player1_sets[current_set - 1] = player1_score
+                player2_sets[current_set - 1] = player2_score
+                current_set += 1
+                player1_score, player2_score = 0, 0
 
-
-            
-
-        # Store updated values in session
+        # Save updated session values
         request.session['player1_name'] = player1_name
         request.session['player2_name'] = player2_name
         request.session['player1_score'] = player1_score
         request.session['player2_score'] = player2_score
         request.session['current_set'] = current_set
-        request.session['player1_sets.0'] = player1_sets_0
-        request.session['player1_sets.1'] = player1_sets_1
-        request.session['player1_sets.2'] = player1_sets_2
-        request.session['player2_sets.0'] = player1_sets_0
-        request.session['player2_sets.1'] = player1_sets_1
-        request.session['player2_sets.2'] = player1_sets_2
+        request.session['player1_sets'] = player1_sets
+        request.session['player2_sets'] = player2_sets
+    male_players = sorted(male_players, key=lambda player: player.name)
+    female_players = sorted(female_players, key=lambda player: player.name)
 
-
+    # Prepare context
     context = {
-        'players': players_list, 
+        'male_players': male_players,
+        'female_players': female_players,
         'player1_name': player1_name,
         'player2_name': player2_name,
         'player1_score': player1_score,
         'player2_score': player2_score,
-        'current_set':current_set,
-        'player1_sets.0':player1_sets_0,
-        'player1_sets.1':player1_sets_1,
-        'player1_sets.2':player1_sets_2,
-        'player2_sets.0':player1_sets_0,
-        'player2_sets.1':player1_sets_1,
-        'player2_sets.2':player1_sets_2,
+        'current_set': current_set,
+        'player1_sets': player1_sets,
+        'player2_sets': player2_sets,
+        'selected_age_category': selected_age_category,
+        'age_categories' : age_categories
+    }
+
+    return render(request, 'court1.html', context)
+
+def court2_view(request):
+    # Retrieve selected age category from GET or default to "all"
+    selected_age_category = request.GET.get('age_category', 'all')
+
+    # Filter players based on the selected age category
+    if selected_age_category == 'all' or selected_age_category.lower() == 'open':
+        players = Player.objects.all()
+    else:
+        players = Player.objects.filter(age_categories__name=selected_age_category)
+
+    # Group players by gender for display
+    male_players = players.filter(gender='M')
+    female_players = players.filter(gender='F')
+
+    age_categories = Category.objects.all
+
+    # Session variables
+    player1_name = request.session.get('player1_name', '')
+    player2_name = request.session.get('player2_name', '')
+    player1_score = int(request.session.get('player1_score', 0))
+    player2_score = int(request.session.get('player2_score', 0))
+    current_set = int(request.session.get('current_set', 1))
+    player1_sets = request.session.get('player1_sets', [0, 0, 0])
+    player2_sets = request.session.get('player2_sets', [0, 0, 0])
+
+    # Handle form submissions
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'increase1':
+            player1_score += 1
+        elif action == 'decrease1' and player1_score > 0:
+            player1_score -= 1
+        elif action == 'increase2':
+            player2_score += 1
+        elif action == 'decrease2' and player2_score > 0:
+            player2_score -= 1
+        elif action == 'switch':
+            player1_name, player2_name = player2_name, player1_name
+            player1_score, player2_score = player2_score, player1_score
+
+        # Check if current set is won
+        if current_set <= 3:
+            if (player1_score >= 21 and player1_score - player2_score >= 2) or player1_score == 30:
+                player1_sets[current_set - 1] = player1_score
+                player2_sets[current_set - 1] = player2_score
+                current_set += 1
+                player1_score, player2_score = 0, 0
+            elif (player2_score >= 21 and player2_score - player1_score >= 2) or player2_score == 30:
+                player1_sets[current_set - 1] = player1_score
+                player2_sets[current_set - 1] = player2_score
+                current_set += 1
+                player1_score, player2_score = 0, 0
+
+        # Save updated session values
+        request.session['player1_name'] = player1_name
+        request.session['player2_name'] = player2_name
+        request.session['player1_score'] = player1_score
+        request.session['player2_score'] = player2_score
+        request.session['current_set'] = current_set
+        request.session['player1_sets'] = player1_sets
+        request.session['player2_sets'] = player2_sets
+    male_players = sorted(male_players, key=lambda player: player.name)
+    female_players = sorted(female_players, key=lambda player: player.name)
+
+    # Prepare context
+    context = {
+        'male_players': male_players,
+        'female_players': female_players,
+        'player1_name': player1_name,
+        'player2_name': player2_name,
+        'player1_score': player1_score,
+        'player2_score': player2_score,
+        'current_set': current_set,
+        'player1_sets': player1_sets,
+        'player2_sets': player2_sets,
+        'selected_age_category': selected_age_category,
+        'age_categories' : age_categories
     }
 
     return render(request, 'court2.html', context)
 
-def court1_view(request):
-    all_players = Player.objects.all()  # Fetch all players
-    return render(request, 'court1.html', {'all_players': all_players})
-
-
 def court3_view(request):
-      # Retrieve scores from session, or initialize if not set
-    # Retrieve scores from session, or initialize if not set
-    #player1_name = request.POST.get('name1', request.session.get('player1_name', 'Player 1'))
-    #player2_name = request.POST.get('name2', request.session.get('player2_name', 'Player 2'))
-    players = Player.objects.all().values('name', 'age_category', 'country')
-    
-    # Convert QuerySet to a list of dictionaries
-    players_list = list(players)
-    player1_name =  players_list
-    player2_name = players_list
+    # Retrieve selected age category from GET or default to "all"
+    selected_age_category = request.GET.get('age_category', 'all')
+
+    # Filter players based on the selected age category
+    if selected_age_category == 'all' or selected_age_category.lower() == 'open':
+        players = Player.objects.all()
+    else:
+        players = Player.objects.filter(age_categories__name=selected_age_category)
+
+    # Group players by gender for display
+    male_players = players.filter(gender='M')
+    female_players = players.filter(gender='F')
+
+    age_categories = Category.objects.all
+
+    # Session variables
+    player1_name = request.session.get('player1_name', '')
+    player2_name = request.session.get('player2_name', '')
     player1_score = int(request.session.get('player1_score', 0))
     player2_score = int(request.session.get('player2_score', 0))
     current_set = int(request.session.get('current_set', 1))
-    player1_sets_0 = int(request.session.get('player1_sets.0', 0))
-    player1_sets_1 = int(request.session.get('player1_sets.1', 0))
-    player1_sets_2 = int(request.session.get('player1_sets.2', 0))
-    player2_sets_0 = int(request.session.get('player2_sets.0', 0))
-    player2_sets_1 = int(request.session.get('player2_sets.1', 0))
-    player2_sets_2 = int(request.session.get('player2_sets.2', 0))
+    player1_sets = request.session.get('player1_sets', [0, 0, 0])
+    player2_sets = request.session.get('player2_sets', [0, 0, 0])
 
+    # Handle form submissions
     if request.method == 'POST':
         action = request.POST.get('action')
-
         if action == 'increase1':
             player1_score += 1
         elif action == 'decrease1' and player1_score > 0:
@@ -307,87 +296,75 @@ def court3_view(request):
             player1_name, player2_name = player2_name, player1_name
             player1_score, player2_score = player2_score, player1_score
 
-        while(current_set<=3):
-            if (current_set == 1):
-                if (player1_score == 19 and player2_score == 21 ) or (player1_score == 21 and player2_score == 19):
-                    player1_sets_0 == player1_score
-                    player2_sets_0 == player2_score
-                    current_set+=1
-                    player1_score = 0
-                    player2_score = 0
-            if (current_set == 2):
-                if (player1_score == 19 and player2_score == 21 ) or (player1_score == 21 and player2_score == 19):
-                    player1_sets_1 == player1_score
-                    player2_sets_1 == player2_score
-                    current_set+=1
-                    player1_score = 0
-                    player2_score = 0
-            if (current_set == 3):        
-                if (player1_score == 19 and player2_score == 21 ) or (player1_score == 21 and player2_score == 19):
-                    player1_sets_2 == player1_score
-                    player2_sets_2 == player2_score
-                    current_set+=1
-                    player1_score = 0
-                    player2_score = 0
+        # Check if current set is won
+        if current_set <= 3:
+            if (player1_score >= 21 and player1_score - player2_score >= 2) or player1_score == 30:
+                player1_sets[current_set - 1] = player1_score
+                player2_sets[current_set - 1] = player2_score
+                current_set += 1
+                player1_score, player2_score = 0, 0
+            elif (player2_score >= 21 and player2_score - player1_score >= 2) or player2_score == 30:
+                player1_sets[current_set - 1] = player1_score
+                player2_sets[current_set - 1] = player2_score
+                current_set += 1
+                player1_score, player2_score = 0, 0
 
-
-            
-
-        # Store updated values in session
+        # Save updated session values
         request.session['player1_name'] = player1_name
         request.session['player2_name'] = player2_name
         request.session['player1_score'] = player1_score
         request.session['player2_score'] = player2_score
         request.session['current_set'] = current_set
-        request.session['player1_sets.0'] = player1_sets_0
-        request.session['player1_sets.1'] = player1_sets_1
-        request.session['player1_sets.2'] = player1_sets_2
-        request.session['player2_sets.0'] = player1_sets_0
-        request.session['player2_sets.1'] = player1_sets_1
-        request.session['player2_sets.2'] = player1_sets_2
+        request.session['player1_sets'] = player1_sets
+        request.session['player2_sets'] = player2_sets
+    male_players = sorted(male_players, key=lambda player: player.name)
+    female_players = sorted(female_players, key=lambda player: player.name)
 
-
+    # Prepare context
     context = {
-        'players': players_list, 
+        'male_players': male_players,
+        'female_players': female_players,
         'player1_name': player1_name,
         'player2_name': player2_name,
         'player1_score': player1_score,
         'player2_score': player2_score,
-        'current_set':current_set,
-        'player1_sets.0':player1_sets_0,
-        'player1_sets.1':player1_sets_1,
-        'player1_sets.2':player1_sets_2,
-        'player2_sets.0':player1_sets_0,
-        'player2_sets.1':player1_sets_1,
-        'player2_sets.2':player1_sets_2,
+        'current_set': current_set,
+        'player1_sets': player1_sets,
+        'player2_sets': player2_sets,
+        'selected_age_category': selected_age_category,
+        'age_categories' : age_categories
     }
 
     return render(request, 'court3.html', context)
 
 def court4_view(request):
-      # Retrieve scores from session, or initialize if not set
-    # Retrieve scores from session, or initialize if not set
-    #player1_name = request.POST.get('name1', request.session.get('player1_name', 'Player 1'))
-    #player2_name = request.POST.get('name2', request.session.get('player2_name', 'Player 2'))
-    players = Player.objects.all().values('name', 'age_category', 'country')
-    
-    # Convert QuerySet to a list of dictionaries
-    players_list = list(players)
-    player1_name =  players_list
-    player2_name = players_list
+    # Retrieve selected age category from GET or default to "all"
+    selected_age_category = request.GET.get('age_category', 'all')
+
+    # Filter players based on the selected age category
+    if selected_age_category == 'all' or selected_age_category.lower() == 'open':
+        players = Player.objects.all()
+    else:
+        players = Player.objects.filter(age_categories__name=selected_age_category)
+
+    # Group players by gender for display
+    male_players = players.filter(gender='M')
+    female_players = players.filter(gender='F')
+
+    age_categories = Category.objects.all
+
+    # Session variables
+    player1_name = request.session.get('player1_name', '')
+    player2_name = request.session.get('player2_name', '')
     player1_score = int(request.session.get('player1_score', 0))
     player2_score = int(request.session.get('player2_score', 0))
     current_set = int(request.session.get('current_set', 1))
-    player1_sets_0 = int(request.session.get('player1_sets.0', 0))
-    player1_sets_1 = int(request.session.get('player1_sets.1', 0))
-    player1_sets_2 = int(request.session.get('player1_sets.2', 0))
-    player2_sets_0 = int(request.session.get('player2_sets.0', 0))
-    player2_sets_1 = int(request.session.get('player2_sets.1', 0))
-    player2_sets_2 = int(request.session.get('player2_sets.2', 0))
+    player1_sets = request.session.get('player1_sets', [0, 0, 0])
+    player2_sets = request.session.get('player2_sets', [0, 0, 0])
 
+    # Handle form submissions
     if request.method == 'POST':
         action = request.POST.get('action')
-
         if action == 'increase1':
             player1_score += 1
         elif action == 'decrease1' and player1_score > 0:
@@ -400,87 +377,75 @@ def court4_view(request):
             player1_name, player2_name = player2_name, player1_name
             player1_score, player2_score = player2_score, player1_score
 
-        while(current_set<=3):
-            if (current_set == 1):
-                if (player1_score == 19 and player2_score == 21 ) or (player1_score == 21 and player2_score == 19):
-                    player1_sets_0 == player1_score
-                    player2_sets_0 == player2_score
-                    current_set+=1
-                    player1_score = 0
-                    player2_score = 0
-            if (current_set == 2):
-                if (player1_score == 19 and player2_score == 21 ) or (player1_score == 21 and player2_score == 19):
-                    player1_sets_1 == player1_score
-                    player2_sets_1 == player2_score
-                    current_set+=1
-                    player1_score = 0
-                    player2_score = 0
-            if (current_set == 3):        
-                if (player1_score == 19 and player2_score == 21 ) or (player1_score == 21 and player2_score == 19):
-                    player1_sets_2 == player1_score
-                    player2_sets_2 == player2_score
-                    current_set+=1
-                    player1_score = 0
-                    player2_score = 0
+        # Check if current set is won
+        if current_set <= 3:
+            if (player1_score >= 21 and player1_score - player2_score >= 2) or player1_score == 30:
+                player1_sets[current_set - 1] = player1_score
+                player2_sets[current_set - 1] = player2_score
+                current_set += 1
+                player1_score, player2_score = 0, 0
+            elif (player2_score >= 21 and player2_score - player1_score >= 2) or player2_score == 30:
+                player1_sets[current_set - 1] = player1_score
+                player2_sets[current_set - 1] = player2_score
+                current_set += 1
+                player1_score, player2_score = 0, 0
 
-
-            
-
-        # Store updated values in session
+        # Save updated session values
         request.session['player1_name'] = player1_name
         request.session['player2_name'] = player2_name
         request.session['player1_score'] = player1_score
         request.session['player2_score'] = player2_score
         request.session['current_set'] = current_set
-        request.session['player1_sets.0'] = player1_sets_0
-        request.session['player1_sets.1'] = player1_sets_1
-        request.session['player1_sets.2'] = player1_sets_2
-        request.session['player2_sets.0'] = player1_sets_0
-        request.session['player2_sets.1'] = player1_sets_1
-        request.session['player2_sets.2'] = player1_sets_2
+        request.session['player1_sets'] = player1_sets
+        request.session['player2_sets'] = player2_sets
+    male_players = sorted(male_players, key=lambda player: player.name)
+    female_players = sorted(female_players, key=lambda player: player.name)
 
-
+    # Prepare context
     context = {
-        'players': players_list, 
+        'male_players': male_players,
+        'female_players': female_players,
         'player1_name': player1_name,
         'player2_name': player2_name,
         'player1_score': player1_score,
         'player2_score': player2_score,
-        'current_set':current_set,
-        'player1_sets.0':player1_sets_0,
-        'player1_sets.1':player1_sets_1,
-        'player1_sets.2':player1_sets_2,
-        'player2_sets.0':player1_sets_0,
-        'player2_sets.1':player1_sets_1,
-        'player2_sets.2':player1_sets_2,
+        'current_set': current_set,
+        'player1_sets': player1_sets,
+        'player2_sets': player2_sets,
+        'selected_age_category': selected_age_category,
+        'age_categories' : age_categories
     }
 
     return render(request, 'court4.html', context)
 
 def court5_view(request):
-      # Retrieve scores from session, or initialize if not set
-    # Retrieve scores from session, or initialize if not set
-    #player1_name = request.POST.get('name1', request.session.get('player1_name', 'Player 1'))
-    #player2_name = request.POST.get('name2', request.session.get('player2_name', 'Player 2'))
-    players = Player.objects.all().values('name', 'age_category', 'country')
-    
-    # Convert QuerySet to a list of dictionaries
-    players_list = list(players)
-    player1_name =  players_list
-    player2_name = players_list
+    # Retrieve selected age category from GET or default to "all"
+    selected_age_category = request.GET.get('age_category', 'all')
+
+    # Filter players based on the selected age category
+    if selected_age_category == 'all' or selected_age_category.lower() == 'open':
+        players = Player.objects.all()
+    else:
+        players = Player.objects.filter(age_categories__name=selected_age_category)
+
+    # Group players by gender for display
+    male_players = players.filter(gender='M')
+    female_players = players.filter(gender='F')
+
+    age_categories = Category.objects.all
+
+    # Session variables
+    player1_name = request.session.get('player1_name', '')
+    player2_name = request.session.get('player2_name', '')
     player1_score = int(request.session.get('player1_score', 0))
     player2_score = int(request.session.get('player2_score', 0))
     current_set = int(request.session.get('current_set', 1))
-    player1_sets_0 = int(request.session.get('player1_sets.0', 0))
-    player1_sets_1 = int(request.session.get('player1_sets.1', 0))
-    player1_sets_2 = int(request.session.get('player1_sets.2', 0))
-    player2_sets_0 = int(request.session.get('player2_sets.0', 0))
-    player2_sets_1 = int(request.session.get('player2_sets.1', 0))
-    player2_sets_2 = int(request.session.get('player2_sets.2', 0))
+    player1_sets = request.session.get('player1_sets', [0, 0, 0])
+    player2_sets = request.session.get('player2_sets', [0, 0, 0])
 
+    # Handle form submissions
     if request.method == 'POST':
         action = request.POST.get('action')
-
         if action == 'increase1':
             player1_score += 1
         elif action == 'decrease1' and player1_score > 0:
@@ -493,87 +458,75 @@ def court5_view(request):
             player1_name, player2_name = player2_name, player1_name
             player1_score, player2_score = player2_score, player1_score
 
-        while(current_set<=3):
-            if (current_set == 1):
-                if (player1_score == 19 and player2_score == 21 ) or (player1_score == 21 and player2_score == 19):
-                    player1_sets_0 == player1_score
-                    player2_sets_0 == player2_score
-                    current_set+=1
-                    player1_score = 0
-                    player2_score = 0
-            if (current_set == 2):
-                if (player1_score == 19 and player2_score == 21 ) or (player1_score == 21 and player2_score == 19):
-                    player1_sets_1 == player1_score
-                    player2_sets_1 == player2_score
-                    current_set+=1
-                    player1_score = 0
-                    player2_score = 0
-            if (current_set == 3):        
-                if (player1_score == 19 and player2_score == 21 ) or (player1_score == 21 and player2_score == 19):
-                    player1_sets_2 == player1_score
-                    player2_sets_2 == player2_score
-                    current_set+=1
-                    player1_score = 0
-                    player2_score = 0
+        # Check if current set is won
+        if current_set <= 3:
+            if (player1_score >= 21 and player1_score - player2_score >= 2) or player1_score == 30:
+                player1_sets[current_set - 1] = player1_score
+                player2_sets[current_set - 1] = player2_score
+                current_set += 1
+                player1_score, player2_score = 0, 0
+            elif (player2_score >= 21 and player2_score - player1_score >= 2) or player2_score == 30:
+                player1_sets[current_set - 1] = player1_score
+                player2_sets[current_set - 1] = player2_score
+                current_set += 1
+                player1_score, player2_score = 0, 0
 
-
-            
-
-        # Store updated values in session
+        # Save updated session values
         request.session['player1_name'] = player1_name
         request.session['player2_name'] = player2_name
         request.session['player1_score'] = player1_score
         request.session['player2_score'] = player2_score
         request.session['current_set'] = current_set
-        request.session['player1_sets.0'] = player1_sets_0
-        request.session['player1_sets.1'] = player1_sets_1
-        request.session['player1_sets.2'] = player1_sets_2
-        request.session['player2_sets.0'] = player1_sets_0
-        request.session['player2_sets.1'] = player1_sets_1
-        request.session['player2_sets.2'] = player1_sets_2
+        request.session['player1_sets'] = player1_sets
+        request.session['player2_sets'] = player2_sets
+    male_players = sorted(male_players, key=lambda player: player.name)
+    female_players = sorted(female_players, key=lambda player: player.name)
 
-
+    # Prepare context
     context = {
-        'players': players_list, 
+        'male_players': male_players,
+        'female_players': female_players,
         'player1_name': player1_name,
         'player2_name': player2_name,
         'player1_score': player1_score,
         'player2_score': player2_score,
-        'current_set':current_set,
-        'player1_sets.0':player1_sets_0,
-        'player1_sets.1':player1_sets_1,
-        'player1_sets.2':player1_sets_2,
-        'player2_sets.0':player1_sets_0,
-        'player2_sets.1':player1_sets_1,
-        'player2_sets.2':player1_sets_2,
+        'current_set': current_set,
+        'player1_sets': player1_sets,
+        'player2_sets': player2_sets,
+        'selected_age_category': selected_age_category,
+        'age_categories' : age_categories
     }
 
     return render(request, 'court5.html', context)
 
 def court6_view(request):
-      # Retrieve scores from session, or initialize if not set
-    # Retrieve scores from session, or initialize if not set
-    #player1_name = request.POST.get('name1', request.session.get('player1_name', 'Player 1'))
-    #player2_name = request.POST.get('name2', request.session.get('player2_name', 'Player 2'))
-    players = Player.objects.all().values('name', 'age_category', 'country')
-    
-    # Convert QuerySet to a list of dictionaries
-    players_list = list(players)
-    player1_name =  players_list
-    player2_name = players_list
+    # Retrieve selected age category from GET or default to "all"
+    selected_age_category = request.GET.get('age_category', 'all')
+
+    # Filter players based on the selected age category
+    if selected_age_category == 'all' or selected_age_category.lower() == 'open':
+        players = Player.objects.all()
+    else:
+        players = Player.objects.filter(age_categories__name=selected_age_category)
+
+    # Group players by gender for display
+    male_players = players.filter(gender='M')
+    female_players = players.filter(gender='F')
+
+    age_categories = Category.objects.all
+
+    # Session variables
+    player1_name = request.session.get('player1_name', '')
+    player2_name = request.session.get('player2_name', '')
     player1_score = int(request.session.get('player1_score', 0))
     player2_score = int(request.session.get('player2_score', 0))
     current_set = int(request.session.get('current_set', 1))
-    player1_sets_0 = int(request.session.get('player1_sets.0', 0))
-    player1_sets_1 = int(request.session.get('player1_sets.1', 0))
-    player1_sets_2 = int(request.session.get('player1_sets.2', 0))
-    player2_sets_0 = int(request.session.get('player2_sets.0', 0))
-    player2_sets_1 = int(request.session.get('player2_sets.1', 0))
-    player2_sets_2 = int(request.session.get('player2_sets.2', 0))
+    player1_sets = request.session.get('player1_sets', [0, 0, 0])
+    player2_sets = request.session.get('player2_sets', [0, 0, 0])
 
+    # Handle form submissions
     if request.method == 'POST':
         action = request.POST.get('action')
-
         if action == 'increase1':
             player1_score += 1
         elif action == 'decrease1' and player1_score > 0:
@@ -586,87 +539,75 @@ def court6_view(request):
             player1_name, player2_name = player2_name, player1_name
             player1_score, player2_score = player2_score, player1_score
 
-        while(current_set<=3):
-            if (current_set == 1):
-                if (player1_score == 19 and player2_score == 21 ) or (player1_score == 21 and player2_score == 19):
-                    player1_sets_0 == player1_score
-                    player2_sets_0 == player2_score
-                    current_set+=1
-                    player1_score = 0
-                    player2_score = 0
-            if (current_set == 2):
-                if (player1_score == 19 and player2_score == 21 ) or (player1_score == 21 and player2_score == 19):
-                    player1_sets_1 == player1_score
-                    player2_sets_1 == player2_score
-                    current_set+=1
-                    player1_score = 0
-                    player2_score = 0
-            if (current_set == 3):        
-                if (player1_score == 19 and player2_score == 21 ) or (player1_score == 21 and player2_score == 19):
-                    player1_sets_2 == player1_score
-                    player2_sets_2 == player2_score
-                    current_set+=1
-                    player1_score = 0
-                    player2_score = 0
+        # Check if current set is won
+        if current_set <= 3:
+            if (player1_score >= 21 and player1_score - player2_score >= 2) or player1_score == 30:
+                player1_sets[current_set - 1] = player1_score
+                player2_sets[current_set - 1] = player2_score
+                current_set += 1
+                player1_score, player2_score = 0, 0
+            elif (player2_score >= 21 and player2_score - player1_score >= 2) or player2_score == 30:
+                player1_sets[current_set - 1] = player1_score
+                player2_sets[current_set - 1] = player2_score
+                current_set += 1
+                player1_score, player2_score = 0, 0
 
-
-            
-
-        # Store updated values in session
+        # Save updated session values
         request.session['player1_name'] = player1_name
         request.session['player2_name'] = player2_name
         request.session['player1_score'] = player1_score
         request.session['player2_score'] = player2_score
         request.session['current_set'] = current_set
-        request.session['player1_sets.0'] = player1_sets_0
-        request.session['player1_sets.1'] = player1_sets_1
-        request.session['player1_sets.2'] = player1_sets_2
-        request.session['player2_sets.0'] = player1_sets_0
-        request.session['player2_sets.1'] = player1_sets_1
-        request.session['player2_sets.2'] = player1_sets_2
+        request.session['player1_sets'] = player1_sets
+        request.session['player2_sets'] = player2_sets
+    male_players = sorted(male_players, key=lambda player: player.name)
+    female_players = sorted(female_players, key=lambda player: player.name)
 
-
+    # Prepare context
     context = {
-        'players': players_list, 
+        'male_players': male_players,
+        'female_players': female_players,
         'player1_name': player1_name,
         'player2_name': player2_name,
         'player1_score': player1_score,
         'player2_score': player2_score,
-        'current_set':current_set,
-        'player1_sets.0':player1_sets_0,
-        'player1_sets.1':player1_sets_1,
-        'player1_sets.2':player1_sets_2,
-        'player2_sets.0':player1_sets_0,
-        'player2_sets.1':player1_sets_1,
-        'player2_sets.2':player1_sets_2,
+        'current_set': current_set,
+        'player1_sets': player1_sets,
+        'player2_sets': player2_sets,
+        'selected_age_category': selected_age_category,
+        'age_categories' : age_categories
     }
 
     return render(request, 'court6.html', context)
 
 def court7_view(request):
-      # Retrieve scores from session, or initialize if not set
-    # Retrieve scores from session, or initialize if not set
-    #player1_name = request.POST.get('name1', request.session.get('player1_name', 'Player 1'))
-    #player2_name = request.POST.get('name2', request.session.get('player2_name', 'Player 2'))
-    players = Player.objects.all().values('name', 'age_category', 'country')
-    
-    # Convert QuerySet to a list of dictionaries
-    players_list = list(players)
-    player1_name =  players_list
-    player2_name = players_list
+    # Retrieve selected age category from GET or default to "all"
+    selected_age_category = request.GET.get('age_category', 'all')
+
+    # Filter players based on the selected age category
+    if selected_age_category == 'all' or selected_age_category.lower() == 'open':
+        players = Player.objects.all()
+    else:
+        players = Player.objects.filter(age_categories__name=selected_age_category)
+
+    # Group players by gender for display
+    male_players = players.filter(gender='M')
+    female_players = players.filter(gender='F')
+
+    age_categories = Category.objects.all
+
+    # Session variables
+    player1_name = request.session.get('player1_name', '')
+    player2_name = request.session.get('player2_name', '')
     player1_score = int(request.session.get('player1_score', 0))
     player2_score = int(request.session.get('player2_score', 0))
     current_set = int(request.session.get('current_set', 1))
-    player1_sets_0 = int(request.session.get('player1_sets.0', 0))
-    player1_sets_1 = int(request.session.get('player1_sets.1', 0))
-    player1_sets_2 = int(request.session.get('player1_sets.2', 0))
-    player2_sets_0 = int(request.session.get('player2_sets.0', 0))
-    player2_sets_1 = int(request.session.get('player2_sets.1', 0))
-    player2_sets_2 = int(request.session.get('player2_sets.2', 0))
+    player1_sets = request.session.get('player1_sets', [0, 0, 0])
+    player2_sets = request.session.get('player2_sets', [0, 0, 0])
 
+    # Handle form submissions
     if request.method == 'POST':
         action = request.POST.get('action')
-
         if action == 'increase1':
             player1_score += 1
         elif action == 'decrease1' and player1_score > 0:
@@ -679,87 +620,75 @@ def court7_view(request):
             player1_name, player2_name = player2_name, player1_name
             player1_score, player2_score = player2_score, player1_score
 
-        while(current_set<=3):
-            if (current_set == 1):
-                if (player1_score == 19 and player2_score == 21 ) or (player1_score == 21 and player2_score == 19):
-                    player1_sets_0 == player1_score
-                    player2_sets_0 == player2_score
-                    current_set+=1
-                    player1_score = 0
-                    player2_score = 0
-            if (current_set == 2):
-                if (player1_score == 19 and player2_score == 21 ) or (player1_score == 21 and player2_score == 19):
-                    player1_sets_1 == player1_score
-                    player2_sets_1 == player2_score
-                    current_set+=1
-                    player1_score = 0
-                    player2_score = 0
-            if (current_set == 3):        
-                if (player1_score == 19 and player2_score == 21 ) or (player1_score == 21 and player2_score == 19):
-                    player1_sets_2 == player1_score
-                    player2_sets_2 == player2_score
-                    current_set+=1
-                    player1_score = 0
-                    player2_score = 0
+        # Check if current set is won
+        if current_set <= 3:
+            if (player1_score >= 21 and player1_score - player2_score >= 2) or player1_score == 30:
+                player1_sets[current_set - 1] = player1_score
+                player2_sets[current_set - 1] = player2_score
+                current_set += 1
+                player1_score, player2_score = 0, 0
+            elif (player2_score >= 21 and player2_score - player1_score >= 2) or player2_score == 30:
+                player1_sets[current_set - 1] = player1_score
+                player2_sets[current_set - 1] = player2_score
+                current_set += 1
+                player1_score, player2_score = 0, 0
 
-
-            
-
-        # Store updated values in session
+        # Save updated session values
         request.session['player1_name'] = player1_name
         request.session['player2_name'] = player2_name
         request.session['player1_score'] = player1_score
         request.session['player2_score'] = player2_score
         request.session['current_set'] = current_set
-        request.session['player1_sets.0'] = player1_sets_0
-        request.session['player1_sets.1'] = player1_sets_1
-        request.session['player1_sets.2'] = player1_sets_2
-        request.session['player2_sets.0'] = player1_sets_0
-        request.session['player2_sets.1'] = player1_sets_1
-        request.session['player2_sets.2'] = player1_sets_2
+        request.session['player1_sets'] = player1_sets
+        request.session['player2_sets'] = player2_sets
+    male_players = sorted(male_players, key=lambda player: player.name)
+    female_players = sorted(female_players, key=lambda player: player.name)
 
-
+    # Prepare context
     context = {
-        'players': players_list, 
+        'male_players': male_players,
+        'female_players': female_players,
         'player1_name': player1_name,
         'player2_name': player2_name,
         'player1_score': player1_score,
         'player2_score': player2_score,
-        'current_set':current_set,
-        'player1_sets.0':player1_sets_0,
-        'player1_sets.1':player1_sets_1,
-        'player1_sets.2':player1_sets_2,
-        'player2_sets.0':player1_sets_0,
-        'player2_sets.1':player1_sets_1,
-        'player2_sets.2':player1_sets_2,
+        'current_set': current_set,
+        'player1_sets': player1_sets,
+        'player2_sets': player2_sets,
+        'selected_age_category': selected_age_category,
+        'age_categories' : age_categories
     }
 
     return render(request, 'court7.html', context)
 
 def court8_view(request):
-      # Retrieve scores from session, or initialize if not set
-    # Retrieve scores from session, or initialize if not set
-    #player1_name = request.POST.get('name1', request.session.get('player1_name', 'Player 1'))
-    #player2_name = request.POST.get('name2', request.session.get('player2_name', 'Player 2'))
-    players = Player.objects.all().values('name', 'age_category', 'country')
-    
-    # Convert QuerySet to a list of dictionaries
-    players_list = list(players)
-    player1_name =  players_list
-    player2_name = players_list
+    # Retrieve selected age category from GET or default to "all"
+    selected_age_category = request.GET.get('age_category', 'all')
+
+    # Filter players based on the selected age category
+    if selected_age_category == 'all' or selected_age_category.lower() == 'open':
+        players = Player.objects.all()
+    else:
+        players = Player.objects.filter(age_categories__name=selected_age_category)
+
+    # Group players by gender for display
+    male_players = players.filter(gender='M')
+    female_players = players.filter(gender='F')
+
+    age_categories = Category.objects.all
+
+    # Session variables
+    player1_name = request.session.get('player1_name', '')
+    player2_name = request.session.get('player2_name', '')
     player1_score = int(request.session.get('player1_score', 0))
     player2_score = int(request.session.get('player2_score', 0))
     current_set = int(request.session.get('current_set', 1))
-    player1_sets_0 = int(request.session.get('player1_sets.0', 0))
-    player1_sets_1 = int(request.session.get('player1_sets.1', 0))
-    player1_sets_2 = int(request.session.get('player1_sets.2', 0))
-    player2_sets_0 = int(request.session.get('player2_sets.0', 0))
-    player2_sets_1 = int(request.session.get('player2_sets.1', 0))
-    player2_sets_2 = int(request.session.get('player2_sets.2', 0))
+    player1_sets = request.session.get('player1_sets', [0, 0, 0])
+    player2_sets = request.session.get('player2_sets', [0, 0, 0])
 
+    # Handle form submissions
     if request.method == 'POST':
         action = request.POST.get('action')
-
         if action == 'increase1':
             player1_score += 1
         elif action == 'decrease1' and player1_score > 0:
@@ -772,87 +701,75 @@ def court8_view(request):
             player1_name, player2_name = player2_name, player1_name
             player1_score, player2_score = player2_score, player1_score
 
-        while(current_set<=3):
-            if (current_set == 1):
-                if (player1_score == 19 and player2_score == 21 ) or (player1_score == 21 and player2_score == 19):
-                    player1_sets_0 == player1_score
-                    player2_sets_0 == player2_score
-                    current_set+=1
-                    player1_score = 0
-                    player2_score = 0
-            if (current_set == 2):
-                if (player1_score == 19 and player2_score == 21 ) or (player1_score == 21 and player2_score == 19):
-                    player1_sets_1 == player1_score
-                    player2_sets_1 == player2_score
-                    current_set+=1
-                    player1_score = 0
-                    player2_score = 0
-            if (current_set == 3):        
-                if (player1_score == 19 and player2_score == 21 ) or (player1_score == 21 and player2_score == 19):
-                    player1_sets_2 == player1_score
-                    player2_sets_2 == player2_score
-                    current_set+=1
-                    player1_score = 0
-                    player2_score = 0
+        # Check if current set is won
+        if current_set <= 3:
+            if (player1_score >= 21 and player1_score - player2_score >= 2) or player1_score == 30:
+                player1_sets[current_set - 1] = player1_score
+                player2_sets[current_set - 1] = player2_score
+                current_set += 1
+                player1_score, player2_score = 0, 0
+            elif (player2_score >= 21 and player2_score - player1_score >= 2) or player2_score == 30:
+                player1_sets[current_set - 1] = player1_score
+                player2_sets[current_set - 1] = player2_score
+                current_set += 1
+                player1_score, player2_score = 0, 0
 
-
-            
-
-        # Store updated values in session
+        # Save updated session values
         request.session['player1_name'] = player1_name
         request.session['player2_name'] = player2_name
         request.session['player1_score'] = player1_score
         request.session['player2_score'] = player2_score
         request.session['current_set'] = current_set
-        request.session['player1_sets.0'] = player1_sets_0
-        request.session['player1_sets.1'] = player1_sets_1
-        request.session['player1_sets.2'] = player1_sets_2
-        request.session['player2_sets.0'] = player1_sets_0
-        request.session['player2_sets.1'] = player1_sets_1
-        request.session['player2_sets.2'] = player1_sets_2
+        request.session['player1_sets'] = player1_sets
+        request.session['player2_sets'] = player2_sets
+    male_players = sorted(male_players, key=lambda player: player.name)
+    female_players = sorted(female_players, key=lambda player: player.name)
 
-
+    # Prepare context
     context = {
-        'players': players_list, 
+        'male_players': male_players,
+        'female_players': female_players,
         'player1_name': player1_name,
         'player2_name': player2_name,
         'player1_score': player1_score,
         'player2_score': player2_score,
-        'current_set':current_set,
-        'player1_sets.0':player1_sets_0,
-        'player1_sets.1':player1_sets_1,
-        'player1_sets.2':player1_sets_2,
-        'player2_sets.0':player1_sets_0,
-        'player2_sets.1':player1_sets_1,
-        'player2_sets.2':player1_sets_2,
+        'current_set': current_set,
+        'player1_sets': player1_sets,
+        'player2_sets': player2_sets,
+        'selected_age_category': selected_age_category,
+        'age_categories' : age_categories
     }
 
     return render(request, 'court8.html', context)
 
 def court9_view(request):
-      # Retrieve scores from session, or initialize if not set
-    # Retrieve scores from session, or initialize if not set
-    #player1_name = request.POST.get('name1', request.session.get('player1_name', 'Player 1'))
-    #player2_name = request.POST.get('name2', request.session.get('player2_name', 'Player 2'))
-    players = Player.objects.all().values('name', 'age_category', 'country')
-    
-    # Convert QuerySet to a list of dictionaries
-    players_list = list(players)
-    player1_name =  players_list
-    player2_name = players_list
+    # Retrieve selected age category from GET or default to "all"
+    selected_age_category = request.GET.get('age_category', 'all')
+
+    # Filter players based on the selected age category
+    if selected_age_category == 'all' or selected_age_category.lower() == 'open':
+        players = Player.objects.all()
+    else:
+        players = Player.objects.filter(age_categories__name=selected_age_category)
+
+    # Group players by gender for display
+    male_players = players.filter(gender='M')
+    female_players = players.filter(gender='F')
+
+    age_categories = Category.objects.all
+
+    # Session variables
+    player1_name = request.session.get('player1_name', '')
+    player2_name = request.session.get('player2_name', '')
     player1_score = int(request.session.get('player1_score', 0))
     player2_score = int(request.session.get('player2_score', 0))
     current_set = int(request.session.get('current_set', 1))
-    player1_sets_0 = int(request.session.get('player1_sets.0', 0))
-    player1_sets_1 = int(request.session.get('player1_sets.1', 0))
-    player1_sets_2 = int(request.session.get('player1_sets.2', 0))
-    player2_sets_0 = int(request.session.get('player2_sets.0', 0))
-    player2_sets_1 = int(request.session.get('player2_sets.1', 0))
-    player2_sets_2 = int(request.session.get('player2_sets.2', 0))
+    player1_sets = request.session.get('player1_sets', [0, 0, 0])
+    player2_sets = request.session.get('player2_sets', [0, 0, 0])
 
+    # Handle form submissions
     if request.method == 'POST':
         action = request.POST.get('action')
-
         if action == 'increase1':
             player1_score += 1
         elif action == 'decrease1' and player1_score > 0:
@@ -865,59 +782,43 @@ def court9_view(request):
             player1_name, player2_name = player2_name, player1_name
             player1_score, player2_score = player2_score, player1_score
 
-        while(current_set<=3):
-            if (current_set == 1):
-                if (player1_score == 19 and player2_score == 21 ) or (player1_score == 21 and player2_score == 19):
-                    player1_sets_0 == player1_score
-                    player2_sets_0 == player2_score
-                    current_set+=1
-                    player1_score = 0
-                    player2_score = 0
-            if (current_set == 2):
-                if (player1_score == 19 and player2_score == 21 ) or (player1_score == 21 and player2_score == 19):
-                    player1_sets_1 == player1_score
-                    player2_sets_1 == player2_score
-                    current_set+=1
-                    player1_score = 0
-                    player2_score = 0
-            if (current_set == 3):        
-                if (player1_score == 19 and player2_score == 21 ) or (player1_score == 21 and player2_score == 19):
-                    player1_sets_2 == player1_score
-                    player2_sets_2 == player2_score
-                    current_set+=1
-                    player1_score = 0
-                    player2_score = 0
+        # Check if current set is won
+        if current_set <= 3:
+            if (player1_score >= 21 and player1_score - player2_score >= 2) or player1_score == 30:
+                player1_sets[current_set - 1] = player1_score
+                player2_sets[current_set - 1] = player2_score
+                current_set += 1
+                player1_score, player2_score = 0, 0
+            elif (player2_score >= 21 and player2_score - player1_score >= 2) or player2_score == 30:
+                player1_sets[current_set - 1] = player1_score
+                player2_sets[current_set - 1] = player2_score
+                current_set += 1
+                player1_score, player2_score = 0, 0
 
-
-            
-
-        # Store updated values in session
+        # Save updated session values
         request.session['player1_name'] = player1_name
         request.session['player2_name'] = player2_name
         request.session['player1_score'] = player1_score
         request.session['player2_score'] = player2_score
         request.session['current_set'] = current_set
-        request.session['player1_sets.0'] = player1_sets_0
-        request.session['player1_sets.1'] = player1_sets_1
-        request.session['player1_sets.2'] = player1_sets_2
-        request.session['player2_sets.0'] = player1_sets_0
-        request.session['player2_sets.1'] = player1_sets_1
-        request.session['player2_sets.2'] = player1_sets_2
+        request.session['player1_sets'] = player1_sets
+        request.session['player2_sets'] = player2_sets
+    male_players = sorted(male_players, key=lambda player: player.name)
+    female_players = sorted(female_players, key=lambda player: player.name)
 
-
+    # Prepare context
     context = {
-        'players': players_list, 
+        'male_players': male_players,
+        'female_players': female_players,
         'player1_name': player1_name,
         'player2_name': player2_name,
         'player1_score': player1_score,
         'player2_score': player2_score,
-        'current_set':current_set,
-        'player1_sets.0':player1_sets_0,
-        'player1_sets.1':player1_sets_1,
-        'player1_sets.2':player1_sets_2,
-        'player2_sets.0':player1_sets_0,
-        'player2_sets.1':player1_sets_1,
-        'player2_sets.2':player1_sets_2,
+        'current_set': current_set,
+        'player1_sets': player1_sets,
+        'player2_sets': player2_sets,
+        'selected_age_category': selected_age_category,
+        'age_categories' : age_categories
     }
 
-    return render(request, 'court9.html', context)
+    return render(request, 'court1.html', context)

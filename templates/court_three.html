@@ -37,7 +37,7 @@
             margin: 10px 0;
         }
         .score {
-            font-size: 50px;
+            font-size: 120px;
             margin: 0 20px;
             color: #ff5722;
             font-weight: bold;
@@ -48,17 +48,22 @@
         }
         .set {
             margin: 10px 0;
-            font-size: 22px;
+            font-size: 50px;
+            display: flex;
+            justify-content: center;
+            white-space: nowrap;
+            gap: 10px;
         }
+
         .set span {
             padding: 8px 16px;
             background-color: #f0f0f0;
             border-radius: 8px;
-            margin: 0 5px;
             font-weight: bold;
+            flex-shrink: 0;
         }
         .current-set {
-            font-size: 24px;
+            font-size: 40px;
             margin-top: 20px;
             font-weight: bold;
             color: #333;
@@ -98,7 +103,7 @@
 
     <script>
         var courtName = "court3";
-        var ws = new WebSocket('ws://' + window.location.host + '/ws/court/' + courtName + '/');
+        var ws = new WebSocket('wss://' + window.location.host + '/wss/court/' + courtName + '/');
 
         ws.onopen = function() {
             console.log('WebSocket connected to court3');

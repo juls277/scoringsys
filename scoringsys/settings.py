@@ -99,6 +99,10 @@ DATABASES = {
     }
 }
 
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    BASE_DIR / "static",  # Ensure this points to your static directory
+]
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -120,7 +124,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # Internationalization
-# https://docs.djangoproject.com/en/5.1/topics/i18n/
+# https://docs.djangoproject.com/en/5.1/topics/i18n/T
 
 LANGUAGE_CODE = 'en-us'
 
@@ -137,14 +141,6 @@ USE_TZ = True
 # settings.py
 
 # URL to use when referring to static files located in STATICFILES_DIRS
-STATIC_URL = '/static/'
-
-# The directory where collectstatic will store static files
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-STAICFILES_DIRS = [
-    BASE_DIR / 'static/'
-   
-]
 
 
 
@@ -155,3 +151,5 @@ STAICFILES_DIRS = [
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # Replace BASE_DIR with the base directory of your project

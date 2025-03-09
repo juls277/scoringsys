@@ -4,6 +4,7 @@
 set -e
 
 # Apply database migrations
+python manage.py makemigrations --noinput
 echo "Applying database migrations..."
 python manage.py migrate --noinput
 

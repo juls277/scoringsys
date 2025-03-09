@@ -3,179 +3,327 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Badminton Player Scores</title>
+    <title>Badminton Scoreboard</title>
     <style>
         body {
             font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #f2f2f2;
+            overflow: hidden; /* Prevents scrolling on small screens */
         }
+
         .scoreboard {
-            background: white;
-            padding: 30px;
+            background: #fff;
+            padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            width: 600px; /* Adjusted width for better spacing */
-            display: flex;
-            flex-direction: column;
+            width: 90vw;
+            max-width: 500px;
         }
+
+        .filter-container {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            margin: 5px 0;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background: #fff;
+            appearance: none; /* Removes default dropdown styling */
+        }
+
         h2 {
+            text-align: center;
+            font-size: 1.5rem;
             margin-bottom: 20px;
         }
+
+        .player {
+            margin: 10px 0;
+        }
+
         .score-container {
             display: flex;
-            justify-content: space-between; /* Space between players and sets */
-            align-items: center;
-            margin: 20px 0; /* Margin for spacing */
-        }
-        .player {
-            display: flex;
             flex-direction: column;
-            align-items: center; /* Center align player elements */
+            gap: 15px;
+            margin-bottom: 20px;
         }
+
         .score-buttons {
             display: flex;
-            align-items: center; /* Center the buttons vertically with the score */
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
         }
-        input[type="text"] {
-            width: 150px;
-            padding: 5px;
-            margin: 0 10px;
-            font-size: 16px;
-            text-align: center;
-        }
-        button {
-            padding: 10px 15px;
-            margin: 5px; /* Adjusted margin for horizontal spacing */
+
+        .score-buttons button {
+            width: 140px; /* Increased width for better usability */
+            height: 42px;
+            background: #007bff;
+            color: #fff;
+            border: 2px solid #000; /* Black border added */
+            border-radius: 5px;
+            font-size: 1rem;
             cursor: pointer;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .score-buttons button:hover {
+            background: #0056b3;
+        }
+
+        .score {
+            font-size: 2.5rem; /* Increased size for better visibility */
+            font-weight: bold;
+            margin: 0 20px;
+        }
+
+        button {
+            background: #007bff;
+            color: #fff;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        .set-results {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            margin-top: 20px;
+            gap: 15px; /* Adds spacing between sets */
+        }
+
+        .set {
+            display: flex;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .switch-button {
+            display: block;
+            margin: 25px auto;
+            width: 90%; /* Full width for better touch usability */
+            max-width: 300px; /* Constrain to reasonable size */
+            background: #28a745;
+            color: #fff;
+            font-size: 1.2rem;
+            font-weight: bold;
+            padding: 12px 20px;
             border: none;
             border-radius: 5px;
-            background-color: #007bff;
-            color: white;
-            font-weight: bold;
-            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
         }
-        button:hover {
-            background-color: #0056b3;
+
+        .switch-button:hover {
+            background: #218838;
         }
-        .score {
-            font-size: 24px;
-            margin: 0 10px; /* Margin for spacing */
-        }
-        .set-results {
-            text-align: center; /* Center the set results */
-        }
-        .set {
-            margin: 5px 0; /* Margin for spacing between sets */
-        }
-        .logout-button {
-            background-color: #f44336;
-            margin-top: 20px;
-            padding: 10px 20px;
-            width: 100%;
-        }
-        .logout-button:hover {
-            background-color: #d32f2f;
+
+        @media (max-width: 768px) {
+            .scoreboard {
+                width: 95vw;
+                padding: 15px;
+            }
+
+            select {
+                font-size: 0.9rem;
+                padding: 10px;
+            }
+
+            h2 {
+                font-size: 1.3rem;
+            }
+
+            .score-buttons button {
+                width: 120px;
+                height: 40px;
+                font-size: 0.9rem;
+            }
+
+            .score {
+                font-size: 2rem;
+            }
+
+            button {
+                font-size: 0.9rem;
+            }
+
+            .switch-button {
+                font-size: 1rem;
+            }
         }
     </style>
+
 </head>
 <body>
-    <div class="scoreboard">
-        <h2>Badminton Player Scores</h2>
-        <form method="POST">
-            {% csrf_token %}
-            <div class="score-container">
-                <div class="player" id="player1">
-                    <label for="player1-name">Select Player 1:</label>
-                    <select name="name1" id="player1-name">
-                        <option value="" disabled>Select Player 1</option>
-                        <option value="" ></option>
-                        {% for player in players %}
-                            <option value="{{ player.name }} {{ player.age_category }} {{ player.country }}" {% if player.name == player1_name %}selected{% endif %}>
-                                {{ player.name }} ({{ player.age_category }}, {{ player.country }})
-                            </option>
-                        {% endfor %}
-                    </select>
-                    <div class="player" id="player1b">
-                    <label for="player1-name">Select Player 1:</label>
-                    <select name="name1" id="player1b-name">
-                        <option value="" disabled>Select Player 1</option>
-                        <option value="" ></option>
-                        {% for player in players %}
-                            <option value="{{ player.name }} {{ player.age_category }} {{ player.country }}" {% if player.name == player1_name %}selected{% endif %}>
-                                {{ player.name }} ({{ player.age_category }}, {{ player.country }})
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
-                    <div class="score-buttons">
-                        <button type="button" onclick="changeScore('decrease1')">-</button>
-                        <span class="score" id="player1-score">{{ player1_score }}</span>
-                        <button type="button" onclick="changeScore('increase1')">+</button>
-                    </div>
-                </div>
+<div class="scoreboard">
+    <!-- Filter by Age Category -->
+<select id="age-category" onchange="filterByAgeCategory()">
+        <option value="all" {% if selected_age_category == 'all' %}selected{% endif %}>All</option>
+        {% for category in age_categories %}
+            <option value="{{ category.name }}" {% if selected_age_category == category.name %}selected{% endif %}>
+                {{ category.name }}
+            </option>
+        {% endfor %}
+    </select>
 
-                <div class="set-results">
-                    <div class="set">
-                        <strong>Set 1:</strong>
-                        <span id="player1-set1"></span> - <span id="player2-set1"></span>
-                    </div>
-                    <div class="set">
-                        <strong>Set 2:</strong>
-                        <span id="player1-set2"></span> - <span id="player2-set2"></span>
-                    </div>
-                    <div class="set">
-                        <strong>Set 3:</strong>
-                        <span id="player1-set3"></span> - <span id="player2-set3"></span>
-                    </div>
-                </div>
-                <div class="player" id="player2">
-                    <label for="player2-name">Select Player 2:</label>
-                    <select name="name2" id="player2-name">
-                        <option value="" disabled>Select Player 2</option>
-                        <option value="" ></option>
-                        {% for player in players %}
-                            <option value="{{ player.name }} {{ player.age_category }} {{ player.country }}" {% if player.name == player2_name  %}selected{% endif %}>
-                                {{ player.name }} ({{ player.age_category }}, {{ player.country }})
-                            </option>
-                        {% endfor %}
-                    </select>
-                    <div class="player" id="player2b">
-                        <label for="player2-name">Select Player 2:</label>
-                        <select name="name2" id="player2b-name">
-                            <option value="" disabled>Select Player 2</option>
-                            <option value="" ></option>
-                            {% for player in players %}
-                                <option value="{{ player.name }} {{ player.age_category }} {{ player.country }}" {% if player.name == player2_name  %}selected{% endif %}>
-                                    {{ player.name }} ({{ player.age_category }}, {{ player.country }})
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="score-buttons">
-                        <button type="button" onclick="changeScore('decrease2')">-</button>
-                        <span class="score" id="player2-score">{{ player2_score }}</span>
-                        <button type="button" onclick="changeScore('increase2')">+</button>
-                    </div>
-                </div>
-            </div>
 
-            <div>
-                <h2>Current Set: <span id="current-set">{{ current_set }}</span></h2>
-            </div>
+    <!-- Form for Players and Scores -->
+    <form method="POST">
+        {% csrf_token %}
 
-            <button type="button" onclick="switchPlayers()">Switch Players</button>
-        </form>
-    </div>
+        <!-- Player 1 Section -->
+        <div class="player" id="player1">
+            <label for="player1-name">Select Player 1:</label>
+            <select name="name1" id="player1-name">
+                <option value="" disabled selected>Select Player 1</option>
+                <optgroup label="Male Players">
+                    {% for player in male_players %}
+                    <option
+                        value="{{ player.name }}"
+                        data-age-categories="{{ player.age_categories.all|join:',' }}"
+                        {% if player.name == player1_name %}selected{% endif %}>
+                        {{ player.name }} ({{ player.country }})
+                    </option>
+                    {% endfor %}
+                </optgroup>
+                <optgroup label="Female Players">
+                    {% for player in female_players %}
+                    <option
+                        value="{{ player.name }}"
+                        data-age-categories="{{ player.age_categories.all|join:',' }}"
+                        {% if player.name == player1_name %}selected{% endif %}>
+                        {{ player.name }} ({{ player.country }})
+                    </option>
+                    {% endfor %}
+                </optgroup>
+            </select>
+        </div>
 
+        <div class="player" id="player1b">
+            <label for="player1b-name">Select Player 1B:</label>
+            <select name="name1b" id="player1b-name">
+                <option value="" disabled selected>Select Player 1B</option>
+                <optgroup label="Male Players">
+                    {% for player in male_players %}
+                    <option
+                        value="{{ player.name }}"
+                        data-age-categories="{{ player.age_categories.all|join:',' }}"
+                        {% if player.name == player1b_name %}selected{% endif %}>
+                        {{ player.name }} ({{ player.country }})
+                    </option>
+                    {% endfor %}
+                </optgroup>
+                <optgroup label="Female Players">
+                    {% for player in female_players %}
+                    <option
+                        value="{{ player.name }}"
+                        data-age-categories="{{ player.age_categories.all|join:',' }}"
+                        {% if player.name == player1b_name %}selected{% endif %}>
+                        {{ player.name }} ({{ player.country }})
+                    </option>
+                    {% endfor %}
+                </optgroup>
+            </select>
+        </div>
+
+
+        <!-- Score Buttons -->
+        <div class="score-buttons">
+            <button type="button" onclick="changeScore('decrease1')">-</button>
+            <span class="score" id="player1-score">{{ player1_score }}</span>
+            <button type="button" onclick="changeScore('increase1')">+</button>
+        </div>
+        <div class="score-buttons">
+            <button type="button" onclick="changeScore('decrease2')">-</button>
+            <span class="score" id="player2-score">{{ player2_score }}</span>
+            <button type="button" onclick="changeScore('increase2')">+</button>
+        </div>
+
+        <!-- Player 2 Section -->
+        <div class="player" id="player2">
+            <label for="player2-name">Select Player 2:</label>
+            <select name="name2" id="player2-name">
+                <option value="" disabled selected>Select Player 2</option>
+                <optgroup label="Male Players">
+                    {% for player in male_players %}
+                    <option value="{{ player.name }}" {% if player.name == player2_name %}selected{% endif %}>
+                        {{ player.name }} ({{ player.country }})
+                    </option>
+                    {% endfor %}
+                </optgroup>
+                <optgroup label="Female Players">
+                    {% for player in female_players %}
+                    <option value="{{ player.name }}" {% if player.name == player2_name %}selected{% endif %}>
+                        {{ player.name }} ({{ player.country }})
+                    </option>
+                    {% endfor %}
+                </optgroup>
+            </select>
+        </div>
+
+        <div class="player" id="player2b">
+            <label for="player2b-name">Select Player 2B:</label>
+            <select name="name2b" id="player2b-name">
+                <option value="" disabled selected>Select Player 2B</option>
+                <optgroup label="Male Players">
+                    {% for player in male_players %}
+                    <option value="{{ player.name }}" {% if player.name == player2b_name %}selected{% endif %}>
+                        {{ player.name }} ({{ player.country }})
+                    </option>
+                    {% endfor %}
+                </optgroup>
+                <optgroup label="Female Players">
+                    {% for player in female_players %}
+                    <option value="{{ player.name }}" {% if player.name == player2b_name %}selected{% endif %}>
+                        {{ player.name }} ({{ player.country }})
+                    </option>
+                    {% endfor %}
+                </optgroup>
+            </select>
+        </div>
+
+        <!-- Set Results -->
+        <div class="set-results">
+            <div class="set"><strong>Set 1:</strong> <span id="player1-set1">{{ player1_sets.0 }}</span> - <span id="player2-set1">{{ player2_sets.0 }}</span></div>
+            <div class="set"><strong>Set 2:</strong> <span id="player1-set2">{{ player1_sets.1 }}</span> - <span id="player2-set2">{{ player2_sets.1 }}</span></div>
+            <div class="set"><strong>Set 3:</strong> <span id="player1-set3">{{ player1_sets.2 }}</span> - <span id="player2-set3">{{ player2_sets.2 }}</span></div>
+        </div>
+
+
+        <!-- Current Set -->
+        <h2>Current Set: <span id="current-set">{{ current_set }}</span></h2>
+
+        <!-- Switch Players -->
+        <button type="button" class="switch-button" onclick="switchPlayers()">Switch Players</button>
+    </form>
+</div>
     <script>
         // Establish WebSocket connection
         var courtName = "court8";
-        var ws = new WebSocket('ws://' + window.location.host + '/ws/court/' + courtName + '/');
+        var ws = new WebSocket('wss://' + window.location.host + '/wss/court/' + courtName + '/');
 
         // When the WebSocket connection is opened
         ws.onopen = function(e) {
@@ -316,6 +464,45 @@
 
 
 
+function filterByAgeCategory() {
+    const selectedCategory = document.getElementById('age-category').value;
+
+    // Select all player dropdowns
+    const playerDropdowns = [
+        document.getElementById('player1-name'),
+        document.getElementById('player1b-name'),
+        document.getElementById('player2-name'),
+        document.getElementById('player2b-name')
+    ];
+
+    // Loop through each dropdown
+    playerDropdowns.forEach(dropdown => {
+        // Get all options in the dropdown
+        const options = dropdown.querySelectorAll('option');
+
+        options.forEach(option => {
+            // Always show the default "Select Player" option
+            if (option.value === "") {
+                option.style.display = 'block';
+            } else {
+                // Get the player's age categories as an array
+                const categories = option.getAttribute('data-age-categories').split(',');
+
+                // Check if the selected category matches any of the player's categories
+                if (selectedCategory === 'all' || categories.includes(selectedCategory)) {
+                    option.style.display = 'block'; // Show the option
+                } else {
+                    option.style.display = 'none'; // Hide the option
+                }
+            }
+        });
+
+        // Reset the selection if the currently selected option is hidden
+        if (dropdown.options[dropdown.selectedIndex]?.style.display === 'none') {
+            dropdown.selectedIndex = 0;
+        }
+    });
+}
 
 
 
