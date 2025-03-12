@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'base.apps.BaseConfig',
     'channels',
-    
+
 ]
 CSRF_TRUSTED_ORIGINS = [
     'https://scoringsys-red-bird-4718.fly.dev',  # Add this host
@@ -124,7 +124,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # Internationalization
-# https://docs.djangoproject.com/en/5.1/topics/i18n/T
+# https://docs.djangoproject.com/en/5.1/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 

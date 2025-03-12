@@ -20,35 +20,39 @@
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             text-align: center;
-            width: 800px;
+            width: 90%;
+            max-width: 1200px;
             display: flex;
-            justify-content: space-between; /* Ensures teams are side by side */
+            justify-content: space-between;
             align-items: center;
         }
         .team {
             display: flex;
             flex-direction: column;
             align-items: center;
+            flex: 1;
         }
         .team .name {
-            font-size: 20px;
+            font-size: 60px;
             font-weight: bold;
             color: #555;
             margin: 10px 0;
         }
         .score {
-            font-size: 120px;
-            margin: 0 20px;
+            font-size: 150px;
+            margin: 0 40px;
             color: #ff5722;
             font-weight: bold;
+            flex-shrink: 0;
         }
         .set-results {
             text-align: center;
             margin-top: 30px;
+            flex: 1;
         }
         .set {
             margin: 10px 0;
-            font-size: 50px;
+            font-size: 60px;
             display: flex;
             justify-content: center;
             white-space: nowrap;
@@ -95,11 +99,7 @@
             <span class="name" id="player2-name"></span>
             <span class="name" id="player2b-name"></span>
         </div>
-
-
-
     </div>
-
 
     <script>
         var courtName = "court1";

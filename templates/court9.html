@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Badminton Scoreboard</title>
@@ -32,9 +34,9 @@
         }
 
         select {
-            width: 100%;
-            padding: 12px;
-            margin: 5px 0;
+            width: 80%;
+            padding: 6px;
+            margin: 2px 0;
             font-size: 1rem;
             border: 1px solid #ccc;
             border-radius: 5px;
@@ -49,7 +51,7 @@
         }
 
         .player {
-            margin: 10px 0;
+            margin: 1px 0;
         }
 
         .score-container {
@@ -111,7 +113,7 @@
             justify-content: center;
             text-align: center;
             margin-top: 20px;
-            gap: 15px; /* Adds spacing between sets */
+            gap: 5px; /* Adds spacing between sets */
         }
 
         .set {
@@ -123,28 +125,125 @@
 
         .switch-button {
             display: block;
-            margin: 25px auto;
+            margin: 10px 10px;
             width: 90%; /* Full width for better touch usability */
             max-width: 300px; /* Constrain to reasonable size */
             background: #28a745;
             color: #fff;
             font-size: 1.2rem;
             font-weight: bold;
-            padding: 12px 20px;
+            padding: 6px 20px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             text-align: center;
         }
-
+        .reset-button {
+            display: block;
+            margin: 10px 10px;
+            width: 90%; /* Full width for better touch usability */
+            max-width: 300px; /* Constrain to reasonable size */
+            background: #f00;
+            color: #fff;
+            font-size: 1.2rem;
+            font-weight: bold;
+            padding: 6px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+        }
         .switch-button:hover {
             background: #218838;
         }
+@media screen and (orientation: landscape) {
+  /* Make the scoreboard container fill the width of a 4:3 screen */
+  .scoreboard {
+    width: 90vw;            /* Fill most of the viewport width */
+    max-width: 1400px;      /* Optional max limit */
+    margin: 0 auto;         /* Center horizontally */
+    background: #fff;       /* If you want a white background that extends */
+    padding: 5px;          /* Some padding around the content */
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
 
-        @media (max-width: 768px) {
+  /* The form holds the four landscape-* sections; make them flex children */
+  .scoreboard form {
+    display: flex;
+    flex-direction: row;    /* Place left, center, right side by side */
+    flex-wrap: wrap;        /* Allows wrapping if space is tight */
+    justify-content: space-around;
+    align-items: flex-start;
+  }
+
+  /* Each .landscape-* is now a flex item. We can control their order. */
+  .landscape-left {
+    order: 1;
+    flex: 0 0 40%; /* 2/5ths of the width */
+  }
+  .landscape-center-left {
+    order: 2;
+    flex: 0 0 10%; /* half of the 1/5th allocated for center */
+  }
+  .landscape-center-right {
+    order: 3;
+    flex: 0 0 10%; /* half of the 1/5th allocated for center */
+  }
+  .landscape-right {
+    order: 4;
+    flex: 0 0 40%; /* 2/5ths of the width */
+  }
+  .landscape-under-left {
+    order: 5;
+    width: 45%;              /* Span the full width under the columns */
+    margin-top: 5px;
+    display: flex;            /* If you want to arrange set results + buttons nicely */
+    flex-direction: column;
+    align-items: center;
+    /* You could also add text-align: center if needed */
+  }
+    .landscape-under-right {
+    order: 5;
+    width: 45%;              /* Span the full width under the columns */
+    margin-top: 5px;
+    display: flex;            /* If you want to arrange set results + buttons nicely */
+    flex-direction: column;
+    align-items: center;
+    /* You could also add text-align: center if needed */
+  }
+
+  /* Narrow the select boxes in landscape (override your default widths) */
+  .landscape-left .player select,
+  .landscape-right .player select {
+      width: 280px !important;  /* Twice the 140px you used before */
+  }
+
+  /* If you want the plus/minus buttons stacked vertically, override here */
+  .score-buttons {
+    display: flex;
+    flex-direction: column;   /* Stack +/- vertically */
+    align-items: center;
+    gap: 10px;                /* Vertical gap */
+    margin: 10px auto;        /* Center them horizontally */
+  }
+.score-buttons button {
+    width: 60px;
+    height: 40px;
+    font-size: 0.9rem;
+}
+  /* Tweak the score font size if you like it bigger in landscape */
+  .score {
+    font-size: 2rem;
+    margin: 10px 0;
+  }
+}
+
+
+
+        @media (max-width) {
             .scoreboard {
                 width: 95vw;
-                padding: 15px;
+                padding: 5px;
             }
 
             select {
@@ -188,139 +287,157 @@
             </option>
         {% endfor %}
     </select>
-
-
     <!-- Form for Players and Scores -->
     <form method="POST">
         {% csrf_token %}
 
-        <!-- Player 1 Section -->
+
+    <div class="landscape-left">
+
+    <!-- Player 1 Section -->
         <div class="player" id="player1">
-            <label for="player1-name">Select Player 1:</label>
-            <select name="name1" id="player1-name">
-                <option value="" disabled selected>Select Player 1</option>
-                <optgroup label="Male Players">
-                    {% for player in male_players %}
-                    <option
-                        value="{{ player.name }}"
-                        data-age-categories="{{ player.age_categories.all|join:',' }}"
-                        {% if player.name == player1_name %}selected{% endif %}>
-                        {{ player.name }} ({{ player.country }})
-                    </option>
-                    {% endfor %}
-                </optgroup>
-                <optgroup label="Female Players">
-                    {% for player in female_players %}
-                    <option
-                        value="{{ player.name }}"
-                        data-age-categories="{{ player.age_categories.all|join:',' }}"
-                        {% if player.name == player1_name %}selected{% endif %}>
-                        {{ player.name }} ({{ player.country }})
-                    </option>
-                    {% endfor %}
-                </optgroup>
-            </select>
+          <select name="name1" id="player1-name">
+            <option value="">Select Player 1</option>
+            <optgroup label="Male Players">
+              {% for player in male_players %}
+              <option
+                  value="{{ player.name }}"
+                  data-age-categories="{{ player.age_categories.all|join:',' }}"
+                  {% if player.name == player1_name %}selected{% endif %}>
+                  {{ player.name }} ({{ player.country }})
+              </option>
+              {% endfor %}
+            </optgroup>
+            <optgroup label="Female Players">
+              {% for player in female_players %}
+              <option
+                  value="{{ player.name }}"
+                  data-age-categories="{{ player.age_categories.all|join:',' }}"
+                  {% if player.name == player1_name %}selected{% endif %}>
+                  {{ player.name }} ({{ player.country }})
+              </option>
+              {% endfor %}
+            </optgroup>
+          </select>
         </div>
-
+        <!-- Player 1 Section -->
         <div class="player" id="player1b">
-            <label for="player1b-name">Select Player 1B:</label>
-            <select name="name1b" id="player1b-name">
-                <option value="" disabled selected>Select Player 1B</option>
-                <optgroup label="Male Players">
-                    {% for player in male_players %}
-                    <option
-                        value="{{ player.name }}"
-                        data-age-categories="{{ player.age_categories.all|join:',' }}"
-                        {% if player.name == player1b_name %}selected{% endif %}>
-                        {{ player.name }} ({{ player.country }})
-                    </option>
-                    {% endfor %}
-                </optgroup>
-                <optgroup label="Female Players">
-                    {% for player in female_players %}
-                    <option
-                        value="{{ player.name }}"
-                        data-age-categories="{{ player.age_categories.all|join:',' }}"
-                        {% if player.name == player1b_name %}selected{% endif %}>
-                        {{ player.name }} ({{ player.country }})
-                    </option>
-                    {% endfor %}
-                </optgroup>
-            </select>
+          <select name="name1b" id="player1b-name">
+            <option value="">Select Player 1B</option>
+            <optgroup label="Male Players">
+              {% for player in male_players %}
+              <option
+                value="{{ player.name }}"
+                data-age-categories="{{ player.age_categories.all|join:',' }}"
+                {% if player.name == player1b_name %}selected{% endif %}>
+                {{ player.name }} ({{ player.country }})
+              </option>
+              {% endfor %}
+            </optgroup>
+            <optgroup label="Female Players">
+              {% for player in female_players %}
+              <option
+                value="{{ player.name }}"
+                data-age-categories="{{ player.age_categories.all|join:',' }}"
+                {% if player.name == player1b_name %}selected{% endif %}>
+                {{ player.name }} ({{ player.country }})
+              </option>
+              {% endfor %}
+            </optgroup>
+          </select>
+        </div>
+    </div>
+
+    <div class="landscape-center-left">
+
+    <!-- Score Buttons -->
+        <div class="score-buttons">
+          <button type="button" onclick="changeScore('increase1')">+</button>
+          <span class="score" id="player1-score">{{ player1_score }}</span>
+          <button type="button" onclick="changeScore('decrease1')">-</button>
+
+        </div>
+    </div>
+
+    <div class="landscape-center-right">
+    <!-- Score Buttons -->
+        <div class="score-buttons">
+          <button type="button" onclick="changeScore('increase2')">+</button>
+          <span class="score" id="player2-score">{{ player2_score }}</span>
+          <button type="button" onclick="changeScore('decrease2')">-</button>
         </div>
 
-
-        <!-- Score Buttons -->
-        <div class="score-buttons">
-            <button type="button" onclick="changeScore('decrease1')">-</button>
-            <span class="score" id="player1-score">{{ player1_score }}</span>
-            <button type="button" onclick="changeScore('increase1')">+</button>
-        </div>
-        <div class="score-buttons">
-            <button type="button" onclick="changeScore('decrease2')">-</button>
-            <span class="score" id="player2-score">{{ player2_score }}</span>
-            <button type="button" onclick="changeScore('increase2')">+</button>
-        </div>
+    </div>
+    <div class="landscape-right">
 
         <!-- Player 2 Section -->
         <div class="player" id="player2">
-            <label for="player2-name">Select Player 2:</label>
-            <select name="name2" id="player2-name">
-                <option value="" disabled selected>Select Player 2</option>
-                <optgroup label="Male Players">
-                    {% for player in male_players %}
-                    <option value="{{ player.name }}" {% if player.name == player2_name %}selected{% endif %}>
-                        {{ player.name }} ({{ player.country }})
-                    </option>
-                    {% endfor %}
-                </optgroup>
-                <optgroup label="Female Players">
-                    {% for player in female_players %}
-                    <option value="{{ player.name }}" {% if player.name == player2_name %}selected{% endif %}>
-                        {{ player.name }} ({{ player.country }})
-                    </option>
-                    {% endfor %}
-                </optgroup>
-            </select>
+          <select name="name2" id="player2-name">
+            <option value="">Select Player 2</option>
+            <optgroup label="Male Players">
+              {% for player in male_players %}
+              <option value="{{ player.name }}" {% if player.name == player2_name %}selected{% endif %}>
+                {{ player.name }} ({{ player.country }})
+              </option>
+              {% endfor %}
+            </optgroup>
+            <optgroup label="Female Players">
+              {% for player in female_players %}
+              <option value="{{ player.name }}" {% if player.name == player2_name %}selected{% endif %}>
+                {{ player.name }} ({{ player.country }})
+              </option>
+              {% endfor %}
+            </optgroup>
+          </select>
         </div>
 
+    <!-- Player 2B Section -->
+
         <div class="player" id="player2b">
-            <label for="player2b-name">Select Player 2B:</label>
-            <select name="name2b" id="player2b-name">
-                <option value="" disabled selected>Select Player 2B</option>
-                <optgroup label="Male Players">
-                    {% for player in male_players %}
-                    <option value="{{ player.name }}" {% if player.name == player2b_name %}selected{% endif %}>
-                        {{ player.name }} ({{ player.country }})
-                    </option>
-                    {% endfor %}
-                </optgroup>
-                <optgroup label="Female Players">
-                    {% for player in female_players %}
-                    <option value="{{ player.name }}" {% if player.name == player2b_name %}selected{% endif %}>
-                        {{ player.name }} ({{ player.country }})
-                    </option>
-                    {% endfor %}
-                </optgroup>
-            </select>
+          <select name="name2b" id="player2b-name">
+            <option value="">Select Player 2B</option>
+            <optgroup label="Male Players">
+              {% for player in male_players %}
+              <option value="{{ player.name }}" {% if player.name == player2b_name %}selected{% endif %}>
+                {{ player.name }} ({{ player.country }})
+              </option>
+              {% endfor %}
+            </optgroup>
+            <optgroup label="Female Players">
+              {% for player in female_players %}
+              <option value="{{ player.name }}" {% if player.name == player2b_name %}selected{% endif %}>
+                {{ player.name }} ({{ player.country }})
+              </option>
+              {% endfor %}
+            </optgroup>
+          </select>
         </div>
+    </div>
+
+    <div class="landscape-under-left">
 
         <!-- Set Results -->
         <div class="set-results">
+            <h2>Current Set: <span id="current-set">{{ current_set }}</span></h2>
             <div class="set"><strong>Set 1:</strong> <span id="player1-set1">{{ player1_sets.0 }}</span> - <span id="player2-set1">{{ player2_sets.0 }}</span></div>
             <div class="set"><strong>Set 2:</strong> <span id="player1-set2">{{ player1_sets.1 }}</span> - <span id="player2-set2">{{ player2_sets.1 }}</span></div>
             <div class="set"><strong>Set 3:</strong> <span id="player1-set3">{{ player1_sets.2 }}</span> - <span id="player2-set3">{{ player2_sets.2 }}</span></div>
-        </div>
 
+        </div>
+            </div>
+
+    <div class="landscape-under-right">
 
         <!-- Current Set -->
-        <h2>Current Set: <span id="current-set">{{ current_set }}</span></h2>
-
         <!-- Switch Players -->
         <button type="button" class="switch-button" onclick="switchPlayers()">Switch Players</button>
+        <button type="button" class="reset-button" onclick="resetCourtState()">Reset Match</button>
+    </div>
+
     </form>
 </div>
     <script>
+
         // Establish WebSocket connection
         var courtName = "court9";
         var ws = new WebSocket('wss://' + window.location.host + '/wss/court/' + courtName + '/');
@@ -560,6 +677,42 @@ function filterByAgeCategory() {
         'player2_set3': player1_set3
     }));
 }
+function resetCourtState() {
+    // Reset scores to initial values
+    document.getElementById('player1-score').textContent = "0";
+    document.getElementById('player2-score').textContent = "0";
+    document.getElementById('current-set').textContent = "1";
+    document.getElementById('player1-set1').textContent = "0";
+    document.getElementById('player2-set1').textContent = "0";
+    document.getElementById('player1-set2').textContent = "0";
+    document.getElementById('player2-set2').textContent = "0";
+    document.getElementById('player1-set3').textContent = "0";
+    document.getElementById('player2-set3').textContent = "0";
+
+    // Build the reset payload to send to the backend via WebSocket
+    const resetState = {
+        'player1_name': document.getElementById('player1-name').value,
+        'player1b_name': document.getElementById('player1b-name').value,
+        'player2_name': document.getElementById('player2-name').value,
+        'player2b_name': document.getElementById('player2b-name').value,
+        'player1_score': 0,
+        'player2_score': 0,
+        'current_set': 1,
+        'player1_set1': 0,
+        'player2_set1': 0,
+        'player1_set2': 0,
+        'player2_set2': 0,
+        'player1_set3': 0,
+        'player2_set3': 0
+    };
+
+    // Send the updated state to the server
+    if (ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify(resetState));
+    } else {
+        console.log('WebSocket is not open');
+    }
+}
 
         // Function to change the score
         function changeScore(action) {
@@ -647,6 +800,18 @@ function filterByAgeCategory() {
         console.log('WebSocket is not open');
     }
 }
+  document.addEventListener('DOMContentLoaded', function() {
+    const selectIds = ['player1-name', 'player1b-name', 'player2-name', 'player2b-name'];
+    selectIds.forEach(id => {
+      const element = document.getElementById(id);
+      new Choices(element, {
+        searchEnabled: true,       // Enable searching
+        placeholder: true,
+        placeholderValue: 'Select a player',
+        shouldSort: false          // Maintain the order as in the original markup
+      });
+    });
+  });
 
     </script>
 </body>

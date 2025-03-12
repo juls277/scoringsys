@@ -1,17 +1,35 @@
 from django.db import models
 
+
+class CourtState(models.Model):
+    court_name = models.CharField(max_length=100, unique=True)
+    player1_name = models.CharField(max_length=100, blank=True, null=True)
+    player1b_name = models.CharField(max_length=100, blank=True, null=True)
+    player2_name = models.CharField(max_length=100, blank=True, null=True)
+    player2b_name = models.CharField(max_length=100, blank=True, null=True)
+    player1_score = models.IntegerField(default=0)
+    player2_score = models.IntegerField(default=0)
+    current_set = models.IntegerField(default=1)
+    player1_set1 = models.IntegerField(default=0)
+    player2_set1 = models.IntegerField(default=0)
+    player1_set2 = models.IntegerField(default=0)
+    player2_set2 = models.IntegerField(default=0)
+    player1_set3 = models.IntegerField(default=0)
+    player2_set3 = models.IntegerField(default=0)
+
+
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
         return self.name
 
+
 class Player(models.Model):
     GENDER_CHOICES = [
         ('M', 'Male'),
         ('F', 'Female'),
     ]
-
 
     name = models.CharField(max_length=100)
     age_categories = models.ManyToManyField(Category, related_name="players")

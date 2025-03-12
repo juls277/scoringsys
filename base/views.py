@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate, login as auth_login, logout
 from django.http import JsonResponse
 from .models import Player, Category
 
+
 # Create your views here.
 # views.py
 
@@ -18,15 +19,17 @@ def get_players(request):
     players_data = list(players.values('name', 'age_category', 'country'))
     return JsonResponse(players_data, safe=False)
 
+
 def home(request):
     return render(request, 'menue.html')
+
 
 def login(request):
     return render(request, 'login.html')
 
+
 def court1(request):
     return render(request, 'court1.html')
-
 
 
 def login_view(request):
@@ -63,8 +66,8 @@ def login_view(request):
             return redirect('court9')
 
         elif user.is_superuser:  # Check if the user is an admin (superuser)
-                auth_login(request, user)
-                return redirect(reverse('admin:index'))
+            auth_login(request, user)
+            return redirect(reverse('admin:index'))
         else:
             return render(request, 'login.html', {'error': 'Invalid username or password'})
     return render(request, 'login.html')
@@ -74,22 +77,39 @@ def logout_view(request):
     logout(request)
     return redirect('home')
 
+
 def court_one_view(request):
     return render(request, 'court_one.html')
+
+
 def court_two_view(request):
     return render(request, 'court_two.html')
+
+
 def court_three_view(request):
     return render(request, 'court_three.html')
+
+
 def court_four_view(request):
     return render(request, 'court_four.html')
+
+
 def court_five_view(request):
     return render(request, 'court_five.html')
+
+
 def court_six_view(request):
     return render(request, 'court_six.html')
+
+
 def court_seven_view(request):
     return render(request, 'court_seven.html')
+
+
 def court_eight_view(request):
     return render(request, 'court_eight.html')
+
+
 def court_nine_view(request):
     return render(request, 'court_nine.html')
 
@@ -170,10 +190,11 @@ def court1_view(request):
         'player1_sets': player1_sets,
         'player2_sets': player2_sets,
         'selected_age_category': selected_age_category,
-        'age_categories' : age_categories
+        'age_categories': age_categories
     }
 
     return render(request, 'court1.html', context)
+
 
 def court2_view(request):
     # Retrieve selected age category from GET or default to "all"
@@ -251,10 +272,11 @@ def court2_view(request):
         'player1_sets': player1_sets,
         'player2_sets': player2_sets,
         'selected_age_category': selected_age_category,
-        'age_categories' : age_categories
+        'age_categories': age_categories
     }
 
     return render(request, 'court2.html', context)
+
 
 def court3_view(request):
     # Retrieve selected age category from GET or default to "all"
@@ -332,10 +354,11 @@ def court3_view(request):
         'player1_sets': player1_sets,
         'player2_sets': player2_sets,
         'selected_age_category': selected_age_category,
-        'age_categories' : age_categories
+        'age_categories': age_categories
     }
 
     return render(request, 'court3.html', context)
+
 
 def court4_view(request):
     # Retrieve selected age category from GET or default to "all"
@@ -413,10 +436,11 @@ def court4_view(request):
         'player1_sets': player1_sets,
         'player2_sets': player2_sets,
         'selected_age_category': selected_age_category,
-        'age_categories' : age_categories
+        'age_categories': age_categories
     }
 
     return render(request, 'court4.html', context)
+
 
 def court5_view(request):
     # Retrieve selected age category from GET or default to "all"
@@ -494,10 +518,11 @@ def court5_view(request):
         'player1_sets': player1_sets,
         'player2_sets': player2_sets,
         'selected_age_category': selected_age_category,
-        'age_categories' : age_categories
+        'age_categories': age_categories
     }
 
     return render(request, 'court5.html', context)
+
 
 def court6_view(request):
     # Retrieve selected age category from GET or default to "all"
@@ -575,10 +600,11 @@ def court6_view(request):
         'player1_sets': player1_sets,
         'player2_sets': player2_sets,
         'selected_age_category': selected_age_category,
-        'age_categories' : age_categories
+        'age_categories': age_categories
     }
 
     return render(request, 'court6.html', context)
+
 
 def court7_view(request):
     # Retrieve selected age category from GET or default to "all"
@@ -656,10 +682,11 @@ def court7_view(request):
         'player1_sets': player1_sets,
         'player2_sets': player2_sets,
         'selected_age_category': selected_age_category,
-        'age_categories' : age_categories
+        'age_categories': age_categories
     }
 
     return render(request, 'court7.html', context)
+
 
 def court8_view(request):
     # Retrieve selected age category from GET or default to "all"
@@ -737,10 +764,11 @@ def court8_view(request):
         'player1_sets': player1_sets,
         'player2_sets': player2_sets,
         'selected_age_category': selected_age_category,
-        'age_categories' : age_categories
+        'age_categories': age_categories
     }
 
     return render(request, 'court8.html', context)
+
 
 def court9_view(request):
     # Retrieve selected age category from GET or default to "all"
@@ -818,7 +846,7 @@ def court9_view(request):
         'player1_sets': player1_sets,
         'player2_sets': player2_sets,
         'selected_age_category': selected_age_category,
-        'age_categories' : age_categories
+        'age_categories': age_categories
     }
 
     return render(request, 'court1.html', context)

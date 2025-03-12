@@ -121,7 +121,144 @@
             // Update set results
             document.getElementById('player1-set1').textContent = data['player1_set1'];
             document.getElementById('player2-set1').textContent = data['player2_set1'];
+            document.getElementById('player1-set2').textContent = data['player1_set2'];<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Badminton Player Scores</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #6dd5ed, #2193b0);
+        }
+        .scoreboard {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 90%;
+            max-width: 1200px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .team {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+        .team .name {
+            font-size: 60px;
+            font-weight: bold;
+            color: #555;
+            margin: 10px 0;
+        }
+        .score {
+            font-size: 150px;
+            margin: 0 40px;
+            color: #ff5722;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        .set-results {
+            text-align: center;
+            margin-top: 30px;
+            flex: 1;
+        }
+        .set {
+            margin: 10px 0;
+            font-size: 60px;
+            display: flex;
+            justify-content: center;
+            white-space: nowrap;
+            gap: 10px;
+        }
+
+        .set span {
+            padding: 8px 16px;
+            background-color: #f0f0f0;
+            border-radius: 8px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        .current-set {
+            font-size: 40px;
+            margin-top: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="scoreboard">
+        <div class="team" id="team1">
+            <span class="name" id="player1-name"></span>
+            <span class="name" id="player1b-name"></span>
+        </div>
+
+        <div class="score" id="player1-score">0</div>
+        <div class="set-results">
+            <div class="set">
+                <span id="player1-set1"></span> - <span id="player2-set1"></span>
+            </div>
+            <div class="set">
+                <span id="player1-set2"></span> - <span id="player2-set2"></span>
+            </div>
+            <div class="set">
+                <span id="player1-set3"></span> - <span id="player2-set3"></span>
+            </div>
+        </div>
+        <div class="score" id="player2-score">0</div>
+
+        <div class="team" id="team2">
+            <span class="name" id="player2-name"></span>
+            <span class="name" id="player2b-name"></span>
+        </div>
+    </div>
+
+    <script>
+        var courtName = "court3";
+        var ws = new WebSocket('wss://' + window.location.host + '/wss/court/' + courtName + '/');
+
+        ws.onopen = function() {
+            console.log('WebSocket connected to court3');
+        };
+
+        ws.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            document.getElementById('player1-name').textContent = data['player1_name'];
+            document.getElementById('player1b-name').textContent = data['player1b_name'];
+            document.getElementById('player2-name').textContent = data['player2_name'];
+            document.getElementById('player2b-name').textContent = data['player2b_name'];
+            document.getElementById('player1-score').textContent = data['player1_score'];
+            document.getElementById('player2-score').textContent = data['player2_score'];
+
+            // Update set results
+            document.getElementById('player1-set1').textContent = data['player1_set1'];
+            document.getElementById('player2-set1').textContent = data['player2_set1'];
             document.getElementById('player1-set2').textContent = data['player1_set2'];
+            document.getElementById('player2-set2').textContent = data['player2_set2'];
+            document.getElementById('player1-set3').textContent = data['player1_set3'];
+            document.getElementById('player2-set3').textContent = data['player2_set3'];
+
+            // Update current set
+            document.getElementById('current-set').textContent = data['current_set'];
+        };
+
+        ws.onerror = function(e) {
+            console.error('WebSocket error:', e);
+        };
+    </script>
+</body>
+</html>
             document.getElementById('player2-set2').textContent = data['player2_set2'];
             document.getElementById('player1-set3').textContent = data['player1_set3'];
             document.getElementById('player2-set3').textContent = data['player2_set3'];
