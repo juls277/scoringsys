@@ -1,21 +1,22 @@
 #!/bin/bash
-
-# Exit script on any error
 set -e
 
-# Apply database migrations
+# Migrate database
 python manage.py makemigrations --noinput
-echo "Applying database migrations..."
 python manage.py migrate --noinput
 
-# Create superuser if it doesn't exist
-echo "Creating superuser if it does not exist..."
+# Create admin & court users if they don't exist
 python manage.py shell << END
 from django.contrib.auth.models import User
+
 if not User.objects.filter(username='admin').exists():
     User.objects.create_superuser('admin', '', 'admin')
+
+for i in range(1, 10):
+    username = f'court{i}'
+    if not User.objects.filter(username=username).exists():
+        User.objects.create_user(username, '', username)
 END
 
-# Start Daphne ASGI server
-echo "Starting Daphne server..."
+# Run your ASGI server
 exec daphne -b 0.0.0.0 -p 8000 scoringsys.asgi:application

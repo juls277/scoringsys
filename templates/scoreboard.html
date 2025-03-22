@@ -102,11 +102,12 @@
     </div>
 
     <script>
-        var courtName = "court6";
+        var courtNumber = "{{ court_number }}";
+        var courtName = "court" + courtNumber
         var ws = new WebSocket('wss://' + window.location.host + '/wss/court/' + courtName + '/');
 
         ws.onopen = function() {
-            console.log('WebSocket connected to court6');
+            console.log('WebSocket connected to court1');
         };
 
         ws.onmessage = function(e) {

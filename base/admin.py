@@ -8,23 +8,17 @@ class CategoryAdmin(admin.ModelAdmin):
     search_fields = ('name',)  # Adds a search bar for categories by name
 
 
-@admin.register(Player)
-class PlayerAdmin(admin.ModelAdmin):
-    list_display = ('name', 'country', 'gender')
-    filter_horizontal = ('age_categories',)  # Enables multi-selection for categories
-    search_fields = ('name', 'country')  # Adds a search bar for players by name and country
+class BasePlayerAdmin(admin.ModelAdmin):
+    list_display = ('name', 'country')
+    search_fields = ('name', 'country')
+    filter_horizontal = ('age_categories',)
+    exclude = ('gender',)
 
 
 @admin.register(MalePlayer)
-class MalePlayerAdmin(admin.ModelAdmin):
-    list_display = ('name', 'country')
-    exclude = ('gender',)
-    filter_horizontal = ('age_categories',)
-    search_fields = ('name', 'country')  # Adds a search bar for male players by name and country
-
+class MalePlayerAdmin(BasePlayerAdmin):
     def get_queryset(self, request):
-        queryset = super().get_queryset(request)
-        return queryset.filter(gender='M')
+        return super().get_queryset(request).filter(gender='M')
 
     def save_model(self, request, obj, form, change):
         obj.gender = 'M'
@@ -32,15 +26,9 @@ class MalePlayerAdmin(admin.ModelAdmin):
 
 
 @admin.register(FemalePlayer)
-class FemalePlayerAdmin(admin.ModelAdmin):
-    list_display = ('name', 'country')
-    exclude = ('gender',)
-    filter_horizontal = ('age_categories',)
-    search_fields = ('name', 'country')  # Adds a search bar for female players by name and country
-
+class FemalePlayerAdmin(BasePlayerAdmin):
     def get_queryset(self, request):
-        queryset = super().get_queryset(request)
-        return queryset.filter(gender='F')
+        return super().get_queryset(request).filter(gender='F')
 
     def save_model(self, request, obj, form, change):
         obj.gender = 'F'

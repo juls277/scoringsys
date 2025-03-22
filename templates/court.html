@@ -439,12 +439,14 @@
     <script>
 
         // Establish WebSocket connection
-        var courtName = "court3";
+        var courtNumber = "{{ court_number }}";
+        var courtName = "court" + courtNumber
         var ws = new WebSocket('wss://' + window.location.host + '/wss/court/' + courtName + '/');
+
 
         // When the WebSocket connection is opened
         ws.onopen = function(e) {
-            console.log('WebSocket is connected to court3');
+            console.log('WebSocket is connected to court1');
         };
 
         // When a message is received from the server

@@ -87,6 +87,7 @@ class ScoreboardConsumer(AsyncWebsocketConsumer):
         # Remove this connection from the court group
         await self.channel_layer.group_discard(self.group_name, self.channel_name)
 
-    async def score_update(self, event):
-        # Send updated scores to the WebSocket client
-        await self.send(text_data=json.dumps(event))
+    async def state_update(self, event):
+        # Receive the broadcast and send it to the scoreboard client
+        data = event['data']
+        await self.send(text_data=json.dumps(data))

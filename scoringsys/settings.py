@@ -9,14 +9,30 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
+import sys
 from pathlib import Path
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+import dj_database_url
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+if 'test' in sys.argv or 'pytest' in sys.argv[0]:
+    # Force SQLite for tests
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',  # In-memory DB for fast tests
+            'TEST': {
+                'SERIALIZE': False,  # 💥 The magic line
+            }
+        }
+    }
+else:
+    DATABASES = {
+        'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
+    }
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
@@ -40,8 +56,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'base.apps.BaseConfig',
-    'channels',
-
+    'channels'
 ]
 CSRF_TRUSTED_ORIGINS = [
     'https://scoringsys-red-bird-4718.fly.dev',  # Add this host
@@ -92,12 +107,6 @@ WSGI_APPLICATION = 'scoringsys.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'db.sqlite3',
-    }
-}
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
